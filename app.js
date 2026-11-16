@@ -85,20 +85,20 @@
   }
 
   async function loadVenues() {
-    $('venueLoading')?.classList.remove('hidden');
-    $('venueList')?.classList.add('hidden');
-    try {
-      const res = await api('listVenues', {});
-      if (!res || res.status !== 'BERHASIL') throw new Error(res?.message || 'Gagal memuat venue.');
-      clientVenues = Array.isArray(res.venues) ? res.venues : [];
-      renderVenueList(clientVenues);
-      $('venueLoading')?.classList.add('hidden');
-      $('venueList')?.classList.remove('hidden');
-    } catch (err) {
-      $('venueLoading')?.classList.add('hidden');
-      $('venueError')?.classList.remove('hidden');
-    }
+  $('venueLoading')?.classList.remove('hidden');
+  $('venueList')?.classList.add('hidden');
+  try {
+    const res = await api('getPublicData', {}); // <-- UBAH DI SINI DARI 'listVenues' MENJADI 'getPublicData'
+    if (!res || res.status !== 'BERHASIL') throw new Error(res?.message || 'Gagal memuat venue.');
+    clientVenues = Array.isArray(res.venues) ? res.venues : [];
+    renderVenueList(clientVenues);
+    $('venueLoading')?.classList.add('hidden');
+    $('venueList')?.classList.remove('hidden');
+  } catch (err) {
+    $('venueLoading')?.classList.add('hidden');
+    $('venueError')?.classList.remove('hidden');
   }
+}
 
   function init() {
     initTheme();

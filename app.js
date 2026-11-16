@@ -2,7 +2,7 @@
   'use strict';
 
   // GANTI URL INI DENGAN URL DEPLOYMENT /exec DARI GOOGLE APPS SCRIPT LO
-  const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbwFVLnoKqIG0YxhtBQXKdqT9zHgl9myRtBXvvYpJMRYu9cEStFQwhMxWQAoYCt5ki1gRQ/exec';
+  const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxsyukFGT1DwBMZz80hNeHKpMyR0erEL-08t1Wz4HP8p2zQFuHecw7FU_bLL5ZD18Ts/exec';
 
   const urlParams = new URLSearchParams(window.location.search);
   const SERVER_MODE = urlParams.get('mode') || 'client';

@@ -3,44 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Beranda Kreasi — Wedding Venue Hub</title>
+  <title>Wedding Venue Hub - Cari Venue Pernikahan Impian</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<div class="shell">
-  <header class="portal-top">
-    <div style="display:flex; justify-content:space-between; align-items:center; padding: 16px 0;">
-      <div class="brand">
-        <div class="mark">BK</div>
-        <div>
-          <strong>Beranda Kreasi</strong>
-          <small>Wedding Venue Hub</small>
-        </div>
+  <!-- HEADER / NAVBAR -->
+  <header class="site-header">
+    <div class="container header-container">
+      <div class="logo">💍 Wedding Venue Hub</div>
+      <div class="header-actions">
+        <button id="themeToggle" class="btn-theme" title="Ubah Tema"><span id="themeToggleIcon">☀</span></button>
       </div>
-      <button id="themeToggle" class="theme-toggle" type="button">
-        <span id="themeToggleIcon">☀</span> <span id="themeToggleLabel">Ganti Tema</span>
-      </button>
     </div>
   </header>
 
-  <main>
-    <div class="home-welcome" style="margin-bottom: 24px;">
-      <div class="eyebrow">KATALOG VENUE RESMI</div>
-      <h1>Temukan Venue Pernikahan Impianmu</h1>
-      <p class="muted">Pilihan venue terbaik dan eksklusif dari Beranda Kreasi.</p>
-    </div>
+  <!-- HERO & FILTER SECTION -->
+  <main class="container main-content">
+    <section class="hero-section">
+      <h1>Temukan Venue Pernikahan Impian Anda</h1>
+      <p>Jelajahi berbagai pilihan venue terbaik dengan mudah dan langsung terhubung ke pengelola.</p>
+      
+      <!-- KOTAK & TOMBOL FILTER -->
+      <div class="filter-box">
+        <input type="text" id="searchQuery" placeholder="Cari nama venue atau kota..." class="filter-input">
+        <select id="filterCity" class="filter-select">
+          <option value="">Semua Kota</option>
+        </select>
+        <select id="filterJenis" class="filter-select">
+          <option value="">Semua Jenis Venue</option>
+          <option value="Indoor">Indoor</option>
+          <option value="Outdoor">Outdoor</option>
+          <option value="Semi-Outdoor">Semi-Outdoor</option>
+          <option value="Hotel">Hotel</option>
+          <option value="Function room facility">Function Room</option>
+          <option value="Wedding Hall">Wedding Hall</option>
+          <option value="Convention center">Convention Center</option>
+          <option value="Event venue">Event Venue</option>
+        </select>
+      </div>
+    </section>
 
-    <div class="card">
-      <div id="venueLoading" class="state">Memuat daftar venue dari sistem...</div>
-      <div id="venueError" class="state hidden">Gagal memuat daftar venue. Periksa koneksi backend.</div>
-      <div id="venueList" class="venue-grid hidden"></div>
-    </div>
+    <!-- LOADING & ERROR STATE -->
+    <div id="venueLoading" class="loading-state">Memuat daftar venue dari database...</div>
+    <div id="venueError" class="error-state hidden">Gagal memuat daftar venue. Periksa koneksi backend.</div>
+
+    <!-- DAFTAR KATALOG VENUE -->
+    <section id="venueList" class="venue-grid hidden">
+      <!-- Kartu venue akan dimuat otomatis oleh app.js di sini -->
+    </section>
   </main>
 
-  <footer class="footer">Website Resmi Beranda Kreasi · Wedding Venue Hub</footer>
-</div>
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; 2026 Wedding Venue Hub. All rights reserved.</p>
+    </div>
+  </footer>
 
-<script src="app.js"></script>
+  <!-- SCRIPT UTAMA -->
+  <script src="app.js"></script>
 </body>
 </html>

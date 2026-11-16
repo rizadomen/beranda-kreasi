@@ -272,6 +272,84 @@
     loadData();
   }
 
+  // --- MODAL AUTH (LOGIN / SIGNUP) ---
+  function setupAuthModal() {
+    const btnLogin = $('btnLoginModal');
+    const modal = $('authModal');
+    const closeBtn = $('closeAuthModal');
+    const toggleLink = $('authToggleLink');
+    const authTitle = $('authModalTitle');
+    const nameGroup = $('nameGroup');
+    const submitBtn = $('authSubmitBtn');
+    const toggleText = $('authToggleText');
+    const authForm = $('authForm');
+
+    let isRegisterMode = false;
+
+    if (btnLogin && modal) {
+      btnLogin.onclick = () => { modal.style.display = 'flex'; };
+    }
+    if (closeBtn && modal) {
+      closeBtn.onclick = () => { modal.style.display = 'none'; };
+    }
+    if (modal) {
+      modal.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
+    }
+
+    if (toggleLink) {
+      toggleLink.onclick = e => {
+        e.preventDefault();
+        isRegisterMode = !isRegisterMode;
+        if (isRegisterMode) {
+          authTitle.textContent = 'Daftar Akun Baru';
+          nameGroup.style.display = 'block';
+          submitBtn.textContent = 'Daftar';
+          toggleText.textContent = 'Sudah punya akun?';
+          toggleLink.textContent = 'Masuk di sini';
+        } else {
+          authTitle.textContent = 'Masuk ke Akun';
+          nameGroup.style.display = 'none';
+          submitBtn.textContent = 'Masuk';
+          toggleText.textContent = 'Belum punya akun?';
+          toggleLink.textContent = 'Daftar di sini';
+        }
+      };
+    }
+
+    if (authForm) {
+      authForm.onsubmit = async e => {
+        e.preventDefault();
+        const email = $('authEmail').value;
+        const password = $('authPassword').value;
+        const nama = $('authName')?.value || '';
+
+        const action = isRegisterMode ? 'registerClient' : 'loginClient';
+        const payload = isRegisterMode ? { email, passwordHash: password, nama } : { email, password };
+
+        submitBtn.textContent = 'Memproses...';
+        submitBtn.disabled = true;
+
+        try {
+          const res = await api(action, payload);
+          if (res && res.status === 'BERHASIL') {
+            alert(res.message || 'Berhasil!');
+            modal.style.display = 'none';
+            if (!isRegisterMode && res.client) {
+              btnLogin.textContent = 'Halo, ' + res.client.nama;
+            }
+          } else {
+            alert('Gagal: ' + (res?.message || 'Terjadi kesalahan'));
+          }
+        } catch (err) {
+          alert('Koneksi server gagal.');
+        } finally {
+          submitBtn.textContent = isRegisterMode ? 'Daftar' : 'Masuk';
+          submitBtn.disabled = false;
+        }
+      };
+    }
+  }
+
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
   else init();
 })();

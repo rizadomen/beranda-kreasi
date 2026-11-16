@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Wedding Venue Hub — Portal Klien</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+</head>
+<body>
+
+<div class="shell">
+  <div id="portalTop" class="portal-top">
+    <header>
+      <div class="brand">
+        <div class="mark">W</div>
+        <div>
+          <strong>Wedding Venue Hub</strong>
+          <small>Client Portal</small>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="secure">SECURE CLIENT ACCESS</div>
+        <button id="themeToggle" class="theme-toggle" type="button" aria-label="Aktifkan mode terang" title="Ganti tema">
+          <span id="themeToggleIcon" class="theme-toggle-icon" aria-hidden="true">☀</span>
+          <span id="themeToggleLabel" class="theme-toggle-label">Mode terang</span>
+        </button>
+      </div>
+    </header>
+  </div>
+
+  <main>
+    <!-- AUTH VIEW -->
+    <section id="authView" class="auth-grid">
+      <div>
+        <div class="eyebrow">Your venue workspace</div>
+        <h1 id="heroTitle">Semua kebutuhan venue, dalam satu ruang.</h1>
+        <p id="heroDesc">Masuk ke portal klien untuk melihat informasi venue yang dapat Anda akses.</p>
+        <div class="features">
+          <div class="feature"><div class="number">01</div><div><strong>Akses personal</strong><small>Informasi venue sesuai hak akses akun Anda.</small></div></div>
+          <div class="feature"><div class="number">02</div><div><strong>Autentikasi aman</strong><small>Identitas diverifikasi Firebase dan server WVH.</small></div></div>
+          <div class="feature"><div class="number">03</div><div><strong>Detail dan galeri</strong><small>Jelajahi informasi venue dan foto yang tersedia.</small></div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2 id="formTitle">Selamat datang kembali</h2>
+        <p id="formDesc">Masuk menggunakan akun yang sudah diaktivasi.</p>
+        <div id="notice" class="notice" role="status" aria-live="polite"></div>
+        <form id="loginForm">
+          <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="username" placeholder="nama@email.com" required></div>
+          <div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" placeholder="Masukkan password" required></div>
+          <button id="loginBtn" class="btn primary" type="submit">Masuk ke Portal</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- DASHBOARD VIEW -->
+    <section id="dashboardView" class="hidden">
+      <div class="dashboard-head">
+        <div>
+          <div class="eyebrow">Client workspace</div>
+          <h1 id="welcomeTitle">Dashboard klien</h1>
+          <p class="muted">Informasi akun dan venue yang dapat Anda akses.</p>
+        </div>
+        <button id="logoutBtn" class="btn inline">Keluar</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><label>Nama klien</label><strong id="profileName">—</strong></div>
+        <div class="stat"><label>Email akun</label><strong id="profileEmail">—</strong></div>
+        <div class="stat"><label>Status akun</label><strong id="profileStatus">—</strong></div>
+      </div>
+
+      <!-- HOME CLIENT PORTAL -->
+      <section id="clientHomeView" class="client-home">
+        <div class="home-welcome">
+          <div class="eyebrow">WEDDING VENUE DISCOVERY</div>
+          <h2>Temukan venue pernikahan impianmu.</h2>
+          <p class="muted">Cari dan bandingkan venue berdasarkan lokasi, harga, dan kebutuhan acara.</p>
+        </div>
+        <div class="home-search-panel">
+          <div class="home-search-grid">
+            <label class="home-field home-field-wide">
+              <span>Cari venue</span>
+              <input type="text" id="homeKeyword" placeholder="Cari nama venue atau lokasi..." />
+            </label>
+            <label class="home-field">
+              <span>Kota</span>
+              <select id="homeCity"><option value="">Semua kota</option></select>
+            </label>
+          </div>
+          <button id="homeSearchBtn" class="btn primary home-search-button" type="button">Cari Venue</button>
+        </div>
+
+        <div class="recommendation-section">
+          <div class="recommendation-heading">
+            <div>
+              <div class="eyebrow">PILIHAN UNTUKMU</div>
+              <h2>Rekomendasi Venue</h2>
+            </div>
+            <button id="homeSeeAllBtn" class="btn inline" type="button">Lihat semua</button>
+          </div>
+          <div id="homeRecommendationList" class="recommendation-list"></div>
+          <div id="homeRecommendationEmpty" class="state hidden">Belum ada venue yang bisa direkomendasikan.</div>
+        </div>
+      </section>
+
+      <!-- VENUE CATALOG & DETAIL -->
+      <div class="card">
+        <div id="venueNotice" class="notice" role="status"></div>
+        <div id="venueLoading" class="state">Memuat daftar venue...</div>
+        <div id="venueEmpty" class="state hidden">Belum ada venue aktif yang tersedia.</div>
+        <div id="venueError" class="state hidden">Daftar venue belum dapat dimuat.</div>
+
+        <div id="clientResultsToolbar" class="client-results-toolbar hidden">
+          <div class="results-toolbar-heading">
+            <button id="resultsBackHomeBtn" class="btn inline" type="button">← Kembali ke Home</button>
+            <div>
+              <h2>Hasil Pencarian Venue</h2>
+              <p id="resultsDescription" class="muted"></p>
+            </div>
+          </div>
+          <p id="resultsCount" class="muted"></p>
+        </div>
+
+        <div id="venueList" class="venue-grid hidden"></div>
+        <div id="venueFilterEmpty" class="state" hidden>Venue tidak ditemukan.</div>
+
+        <div id="venueContent" class="hidden">
+          <div class="detail-top">
+            <button id="backVenueListBtn" class="btn inline" type="button">← Kembali</button>
+            <span class="eyebrow">Venue detail</span>
+          </div>
+          <article class="card">
+            <h2 id="venueName">—</h2>
+            <p id="venueAddress" class="muted"></p>
+            <p id="venueDescription"></p>
+            <div class="facts">
+              <div class="fact"><small>Kota</small><strong id="venueCity">—</strong></div>
+              <div class="fact"><small>Kapasitas</small><strong id="venueCapacity">—</strong></div>
+              <div class="fact"><small>Harga paket</small><strong id="venuePrice" class="venue-detail-price">—</strong></div>
+              <div class="fact"><small>Kontak</small><strong id="venueContact">—</strong></div>
+              <div class="fact" style="grid-column:1/-1"><small>Fasilitas</small><strong id="venueFacilities">—</strong></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">Wedding Venue Hub · Client Portal</footer>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

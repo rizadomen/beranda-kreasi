@@ -3,60 +3,161 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wedding Venue Hub - Cari Venue Pernikahan Impian</title>
+  <title>Wedding Venue Hub - Client Portal</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <!-- HEADER / NAVBAR -->
   <header class="site-header">
     <div class="container header-container">
-      <div class="logo">💍 Wedding Venue Hub</div>
+      <div class="brand-wrapper">
+        <div class="logo-box">W</div>
+        <div>
+          <div class="brand-title">Wedding Venue Hub</div>
+          <div class="brand-subtitle">Client Portal</div>
+        </div>
+      </div>
       <div class="header-actions">
-        <button id="themeToggle" class="btn-theme" title="Ubah Tema"><span id="themeToggleIcon">☀</span></button>
+        <button class="btn-secondary-header" id="secureClientAccessBtn">SECURE CLIENT ACCESS</button>
+        <button id="themeToggle" class="btn-theme" title="Ubah Tema"><span id="themeToggleIcon">☀</span> Mode terang</button>
       </div>
     </div>
   </header>
 
-  <!-- HERO & FILTER SECTION -->
+  <!-- BANNER UTAMA -->
+  <div class="container banner-container">
+    <div class="hero-banner">
+      <h1>Hubungi Kami Jika butuh Wedding Organizer</h1>
+      <p>Klik tombol Hubungi Admin</p>
+    </div>
+  </div>
+
+  <!-- KONTEN UTAMA KLIEN -->
   <main class="container main-content">
-    <section class="hero-section">
-      <h1>Temukan Venue Pernikahan Impian Anda</h1>
-      <p>Jelajahi berbagai pilihan venue terbaik dengan mudah dan langsung terhubung ke pengelola.</p>
+    
+    <!-- SECTION AKUN KLIEN -->
+    <section class="client-workspace-box">
+      <div class="workspace-header">
+        <div>
+          <h2>Halo, Akun Tester!</h2>
+          <p>Informasi akun dan venue yang dapat Anda akses.</p>
+        </div>
+        <button class="btn-logout" id="logoutBtn">Keluar</button>
+      </div>
       
-      <!-- KOTAK & TOMBOL FILTER -->
-      <div class="filter-box">
-        <input type="text" id="searchQuery" placeholder="Cari nama venue atau kota..." class="filter-input">
-        <select id="filterCity" class="filter-select">
-          <option value="">Semua Kota</option>
-        </select>
-        <select id="filterJenis" class="filter-select">
-          <option value="">Semua Jenis Venue</option>
-          <option value="Indoor">Indoor</option>
-          <option value="Outdoor">Outdoor</option>
-          <option value="Semi-Outdoor">Semi-Outdoor</option>
-          <option value="Hotel">Hotel</option>
-          <option value="Function room facility">Function Room</option>
-          <option value="Wedding Hall">Wedding Hall</option>
-          <option value="Convention center">Convention Center</option>
-          <option value="Event venue">Event Venue</option>
-        </select>
+      <div class="workspace-action-bar">
+        <button class="btn-admin-wa" id="hubungiAdminBtn">Hubungi Admin</button>
+      </div>
+
+      <div class="client-info-grid">
+        <div class="info-card">
+          <label>Nama klien</label>
+          <div class="info-value" id="clientNameVal">Akun Tester</div>
+        </div>
+        <div class="info-card">
+          <label>Email akun</label>
+          <div class="info-value" id="clientEmailVal">adikusumogo@gmail.com</div>
+        </div>
+        <div class="info-card">
+          <label>Status akun</label>
+          <div class="info-value" id="clientStatusVal">AKTIF</div>
+        </div>
       </div>
     </section>
 
-    <!-- LOADING & ERROR STATE -->
-    <div id="venueLoading" class="loading-state">Memuat daftar venue dari database...</div>
-    <div id="venueError" class="error-state hidden">Gagal memuat daftar venue. Periksa koneksi backend.</div>
+    <!-- SECTION PENCARIAN & FILTER VENUE -->
+    <section class="discovery-section">
+      <div class="section-badge">WEDDING VENUE DISCOVERY</div>
+      <h2>Temukan venue pernikahan impianmu.</h2>
+      <p>Cari dan bandingkan venue berdasarkan lokasi, harga, dan kebutuhan acara.</p>
 
-    <!-- DAFTAR KATALOG VENUE -->
-    <section id="venueList" class="venue-grid hidden">
-      <!-- Kartu venue akan dimuat otomatis oleh app.js di sini -->
+      <div class="filter-card-advanced">
+        <div class="filter-row">
+          <div class="form-group-flex">
+            <label>Cari venue</label>
+            <input type="text" id="searchQuery" placeholder="Cari nama venue atau lokasi..." class="filter-input">
+          </div>
+          <div class="form-group-flex">
+            <label>Kota</label>
+            <select id="filterCity" class="filter-select">
+              <option value="">Semua kota</option>
+            </select>
+          </div>
+          <div class="form-group-flex">
+            <label>Kecamatan</label>
+            <select id="filterKecamatan" class="filter-select">
+              <option value="">Semua kecamatan</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-row price-row">
+          <div class="form-group-flex">
+            <label>Harga minimum (Rp)</label>
+            <input type="number" id="filterMinPrice" placeholder="Contoh: 10.000.000" class="filter-input">
+          </div>
+          <div class="form-group-flex">
+            <label>Harga maksimum (Rp)</label>
+            <input type="number" id="filterMaxPrice" placeholder="Contoh: 50.000.000" class="filter-input">
+          </div>
+        </div>
+
+        <button id="btnSearchSubmit" class="btn-search-action">Cari Venue</button>
+      </div>
+
+      <!-- KOTAK PINTASAN -->
+      <div class="shortcut-grid">
+        <div class="shortcut-card">
+          <span class="shortcut-icon">❤️</span>
+          <div>
+            <h3>Venue Favorit</h3>
+            <p>Daftar tempat yang kamu simpan</p>
+          </div>
+        </div>
+        <div class="shortcut-card">
+          <span class="shortcut-icon">🏷️</span>
+          <div>
+            <h3>Murah Meriah</h3>
+            <p>Venue di bawah Rp50 juta</p>
+          </div>
+        </div>
+        <div class="shortcut-card">
+          <span class="shortcut-icon">📍</span>
+          <div>
+            <h3>Lokasi Terdekat</h3>
+            <p>Temukan venue di sekitarmu</p>
+          </div>
+        </div>
+      </div>
     </section>
+
+    <!-- SECTION REKOMENDASI / LIST VENUE -->
+    <section class="recommendation-section">
+      <div class="section-header-flex">
+        <div>
+          <div class="section-badge">PILIHAN UTAMA</div>
+          <h2>Rekomendasi Venue</h2>
+          <p>Jelajahi venue yang tersedia.</p>
+        </div>
+        <button class="btn-lihat-semua" id="btnLihatSemua">Lihat semua</button>
+      </div>
+
+      <!-- State Loading & Error -->
+      <div id="venueLoading" class="loading-state hidden">Memuat daftar venue dari database...</div>
+      <div id="venueError" class="error-state hidden">Gagal memuat daftar venue. Periksa koneksi backend.</div>
+
+      <!-- Grid Daftar Venue -->
+      <div id="venueList" class="venue-grid">
+        <!-- Kartu venue akan dimuat secara dinamis lewat app.js di sini -->
+      </div>
+    </section>
+
   </main>
 
   <!-- FOOTER -->
   <footer class="site-footer">
-    <div class="container">
-      <p>&copy; 2026 Wedding Venue Hub. All rights reserved.</p>
+    <div class="container text-center">
+      <p>Wedding Venue Hub - Client Portal</p>
     </div>
   </footer>
 

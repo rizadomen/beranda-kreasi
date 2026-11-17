@@ -242,21 +242,20 @@
         </div>
       </div>
     </div>
+
     <!-- MODAL PAYWALL / GEMBOK -->
-    <div id="paywallModal" class="modal-backdrop hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: grid; place-items: center; z-index: 9999;">
-      <div class="modal-box" style="background: var(--surface); padding: 32px; border-radius: 16px; max-width: 400px; text-align: center; border: 1px solid var(--border);">
+    <div id="paywallModal" class="modal-backdrop hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; place-items: center; z-index: 9999;">
+      <div class="modal-box" style="background: var(--card-bg); padding: 32px; border-radius: 16px; max-width: 400px; width: 90%; text-align: center; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);">
         <div style="font-size: 42px; margin-bottom: 12px;">🔒</div>
-        <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px;">Akses Terkunci (Batas Kuota Habis)</h3>
-        <p style="color: var(--muted); font-size: 13px; line-height: 1.5; margin-bottom: 24px;">
+        <h3 style="font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Akses Terkunci (Batas Kuota Habis)</h3>
+        <p style="color: var(--text-muted); font-size: 13px; line-height: 1.5; margin-bottom: 24px;">
           Anda telah menggunakan jatah melihat 3 venue gratis. Upgrade akun Anda ke status <strong>SUBSCRIBE</strong> untuk membuka akses tanpa batas!
         </p>
         <div style="display: flex; flex-direction: column; gap: 10px;">
-          <!-- Pastikan ID ini ada -->
           <button type="button" id="btnConfirmSubscribeWhatsApp" class="btn primary w-full" style="padding: 12px; font-weight: 600; cursor: pointer;">
             💬 Konfirmasi Upgrade via WhatsApp
           </button>
-          <!-- Pastikan ID ini ada -->
-          <button type="button" id="btnClosePaywall" class="btn w-full" style="padding: 10px; cursor: pointer; background: transparent; border: 1px solid var(--border); color: var(--text);">
+          <button type="button" id="btnClosePaywall" class="btn outline w-full" style="padding: 10px; font-weight: 600; cursor: pointer;">
             Tutup
           </button>
         </div>
@@ -266,7 +265,7 @@
 
   <div id="toast" class="toast hidden"></div>
 
-<!-- SCRIPT KLIEN INTERAKTIF -->
+  <!-- SCRIPT KLIEN INTERAKTIF -->
   <script>
     const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxsyukFGT1DwBMZz80hNeHKpMyR0erEL-08t1Wz4HP8p2zQFuHecw7FU_bLL5ZD18Ts/exec';
     const $ = (id) => document.getElementById(id);
@@ -292,9 +291,7 @@
 
     function updateThemeButtonIcon(theme) {
       const btn = $('themeToggleBtn');
-      if (btn) {
-        btn.textContent = theme === 'dark' ? '☀️' : '🌙';
-      }
+      if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
     }
 
     function toast(msg, isErr = false) {
@@ -348,36 +345,16 @@
         const res = await api('listVenues');
         allVenues = res.venues || res.data || [];
         
-        // 1. Populate Dropdown Kota dari kolom KOTA
         const kotaSet = [...new Set(allVenues.map(v => v.KOTA || v.kota).filter(Boolean))];
         const kotaSelect = $('filterKota');
         if (kotaSelect) {
           kotaSelect.innerHTML = '<option value="">Semua Kota</option>' + kotaSet.map(k => `<option value="${k}">${k}</option>`).join('');
         }
 
-        // 2. Populate Dropdown Jenis Venue
         const jenisSet = [...new Set(allVenues.map(v => v.JENIS_VENUE || v.jenis_venue).filter(Boolean))];
         const jenisSelect = $('filterJenis');
         if (jenisSelect) {
           jenisSelect.innerHTML = '<option value="">Semua Jenis</option>' + jenisSet.map(j => `<option value="${j}">${j}</option>`).join('');
-        }
-
-        // 3. Populate Dropdown Kecamatan
-        const kecamatanSet = new Set();
-        allVenues.forEach(v => {
-          let alamatLengkap = v.KECAMATAN || v.kecamatan || v.ALAMAT || v.alamat || '';
-          const match = alamatLengkap.match(/(?:kecamatan|kec\.?)\s+([a-zA-Z\s]+)(?:,|\.|$)/i);
-          if (match && match[1]) {
-            let cleanKec = match[0].replace(/^(kecamatan|kec\.?)\s*/i, '').replace(/[,.]/g, '').trim();
-            if (cleanKec) {
-              kecamatanSet.add(cleanKec.charAt(0).toUpperCase() + cleanKec.slice(1).toLowerCase());
-            }
-          }
-        });
-
-        const kecSelect = $('filterKecamatan');
-        if (kecSelect) {
-          kecSelect.innerHTML = '<option value="">Semua Kecamatan</option>' + [...kecamatanSet].map(kc => `<option value="${kc}">${kc}</option>`).join('');
         }
 
         renderVenuesList(allVenues);
@@ -395,7 +372,6 @@
         return;
       }
 
-      // Ambil data status langganan & kuota unik berdasarkan ID klien
       const isSubscribed = currentClient && (currentClient.STATUS_LANGGANAN === 'SUBSCRIBE' || currentClient.status_langganan === 'SUBSCRIBE');
       const clientId = currentClient ? (currentClient.ID_KLIEN || currentClient.id_klien || 'guest') : 'guest';
       const storageKey = 'wvh_viewed_' + clientId;
@@ -409,7 +385,6 @@
         const fitur = v.FITUR_VENUE || v.fitur_venue || 'Indoor';
         const id = v.ID_VENUE || v.id_venue;
         
-        // Cek status terkunci (jika bukan subscriber, belum pernah dibuka, dan kuota sudah >= 3)
         const isOpened = viewedVenues.includes(id);
         const isLocked = !isSubscribed && !isOpened && viewedVenues.length >= 3;
 
@@ -420,22 +395,11 @@
         let priceStr = 'Hubungi Admin';
         try {
           const pObj = JSON.parse(v.HARGA_INFO || v.harga_info || '{}');
-          if (pObj.amount) {
-            priceStr = 'Rp ' + Number(pObj.amount).toLocaleString('id-ID');
-          }
+          if (pObj.amount) priceStr = 'Rp ' + Number(pObj.amount).toLocaleString('id-ID');
         } catch(err){}
 
-        let coverUrl = 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=600&q=80';
-        if (v.cover && v.cover.url) {
-          coverUrl = v.cover.url;
-        }
-
+        let coverUrl = v.cover && v.cover.url ? v.cover.url : 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=600&q=80';
         const isSaved = savedVenueIds.includes(id);
-
-        let distanceHtml = '';
-        if (v._distance !== undefined) {
-          distanceHtml = `<div class="venue-distance">📍 Berjarak ± ${v._distance.toFixed(1)} km dari lokasi Anda</div>`;
-        }
 
         return `
           <div class="venue-card-client" style="position: relative;">
@@ -452,7 +416,6 @@
               </div>
               <div class="venue-title">${name}</div>
               <div class="venue-location">📍 ${kota}</div>
-              ${distanceHtml}
               <div class="venue-price">${priceStr}</div>
               <button type="button" class="btn primary sm" onclick="handleClientViewDetail('${id}')" style="width:100%;">Lihat Detail & Galeri</button>
             </div>
@@ -461,7 +424,7 @@
       }).join('');
     }
 
-    // --- FUNGSI PEMBATAS KUOTA 3 KLIK VENUE ---
+    // --- FUNGSI UTAMA PEMBATAS KUOTA 3 KLIK VENUE ---
     window.handleClientViewDetail = function(venueId) {
       const isSubscribed = currentClient && (currentClient.STATUS_LANGGANAN === 'SUBSCRIBE' || currentClient.status_langganan === 'SUBSCRIBE');
 
@@ -473,144 +436,26 @@
       const clientId = currentClient ? (currentClient.ID_KLIEN || currentClient.id_klien || 'guest') : 'guest';
       const storageKey = 'wvh_viewed_' + clientId;
       let viewedVenues = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      
       const alreadyOpened = viewedVenues.includes(venueId);
 
       if (!alreadyOpened) {
+        // Jika kuota sudah mencapai 3 dan venue ini BELUM PERNAH dibuka -> Tampilkan Modal Paywall
         if (viewedVenues.length >= 3) {
-          // Tampilkan Modal Paywall / Gembok
           const modal = $('paywallModal');
-          if (modal) modal.classList.remove('hidden');
+          if (modal) {
+            modal.style.display = 'grid';
+            modal.classList.remove('hidden');
+          }
           return;
         }
+        // Jika belum 3, masukkan ke riwayat
         viewedVenues.push(venueId);
         localStorage.setItem(storageKey, JSON.stringify(viewedVenues));
       }
 
       // Lanjut buka halaman detail venue
       window.location.href = `./venue-detail.html?id=${venueId}`;
-    };
-
-    // Format otomatis angka ribuan/jutaan saat diketik di input harga
-    function formatRupiahInput(input) {
-      let rawVal = input.value.replace(/[^0-9]/g, '');
-      if (rawVal) {
-        input.value = Number(rawVal).toLocaleString('id-ID');
-      } else {
-        input.value = '';
-      }
-    }
-
-    window.applyFilters = function() {
-      const keyword = $('searchKeyword').value.toLowerCase().trim();
-      const kota = $('filterKota').value;
-      const kecamatan = $('filterKecamatan').value;
-      const jenis = $('filterJenis').value;
-      const fitur = $('filterFitur').value;
-      
-      const minPriceRaw = $('filterMinPrice').value.replace(/[^0-9]/g, '');
-      const maxPriceRaw = $('filterMaxPrice').value.replace(/[^0-9]/g, '');
-      const minPrice = minPriceRaw ? Number(minPriceRaw) : 0;
-      const maxPrice = maxPriceRaw ? Number(maxPriceRaw) : Infinity;
-      const sortVal = $('sortPrice').value;
-
-      let filtered = allVenues.filter(v => {
-        const textMatch = ((v.NAMA_VENUE || '') + ' ' + (v.DESKRIPSI || '') + ' ' + (v.ALAMAT || '')).toLowerCase();
-        
-        if (keyword && !textMatch.includes(keyword)) return false;
-        
-        const venueKota = String(v.KOTA || v.kota || '').trim();
-        if (kota && venueKota !== kota) return false;
-
-        if (kecamatan && !((v.ALAMAT || v.alamat || '')).toLowerCase().includes(kecamatan.toLowerCase())) return false;
-
-        const venueJenis = String(v.JENIS_VENUE || v.jenis_venue || '').trim();
-        if (jenis && venueJenis !== jenis) return false;
-
-        if (fitur && (v.FITUR_VENUE || v.fitur_venue) !== fitur) return false;
-
-        let pAmount = 0;
-        try {
-          const pObj = JSON.parse(v.HARGA_INFO || v.harga_info || '{}');
-          pAmount = Number(pObj.amount || 0);
-        } catch(e){}
-
-        if (minPrice && pAmount > 0 && pAmount < minPrice) return false;
-        if (maxPrice < Infinity && pAmount > 0 && pAmount > maxPrice) return false;
-
-        return true;
-      });
-
-      if (sortVal === 'cheap') {
-        filtered.sort((a, b) => {
-          let pa = 0, pb = 0;
-          try { pa = Number(JSON.parse(a.HARGA_INFO || '{}').amount || 0); } catch(e){}
-          try { pb = Number(JSON.parse(b.HARGA_INFO || '{}').amount || 0); } catch(e){}
-          return (pa || 999999999) - (pb || 999999999);
-        });
-      } else if (sortVal === 'expensive') {
-        filtered.sort((a, b) => {
-          let pa = 0, pb = 0;
-          try { pa = Number(JSON.parse(a.HARGA_INFO || '{}').amount || 0); } catch(e){}
-          try { pb = Number(JSON.parse(b.HARGA_INFO || '{}').amount || 0); } catch(e){}
-          return pb - pa;
-        });
-      }
-
-      toast(`Menampilkan ${filtered.length} venue.`);
-      renderVenuesList(filtered);
-    };
-
-    window.resetFilters = function() {
-      $('searchKeyword').value = '';
-      $('filterKota').value = '';
-      $('filterKecamatan').value = '';
-      $('filterJenis').value = '';
-      $('filterFitur').value = '';
-      $('filterMinPrice').value = '';
-      $('filterMaxPrice').value = '';
-      $('sortPrice').value = '';
-      renderVenuesList(allVenues);
-      toast('Filter direset.');
-    };
-
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLon/2) * Math.sin(dLon/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return R * c;
-    }
-
-    window.sortByNearestLocation = function() {
-      if (!navigator.geolocation) {
-        toast('Browser Anda tidak mendukung fitur geolokasi!', true);
-        return;
-      }
-
-      toast('Mendeteksi posisi Anda...');
-      navigator.geolocation.getCurrentPosition(position => {
-        const userLat = position.coords.latitude;
-        const userLon = position.coords.longitude;
-
-        allVenues.forEach(v => {
-          const lat = parseFloat(v.LATITUDE || v.latitude);
-          const lon = parseFloat(v.LONGITUDE || v.longitude);
-          if (!isNaN(lat) && !isNaN(lon)) {
-            v._distance = calculateDistance(userLat, userLon, lat, lon);
-          } else {
-            v._distance = 99999;
-          }
-        });
-
-        allVenues.sort((a, b) => a._distance - b._distance);
-        toast('Berhasil mengurutkan venue terdekat!');
-        renderVenuesList(allVenues);
-      }, error => {
-        toast('Gagal mendeteksi lokasi. Pastikan izin GPS aktif.', true);
-      }, { timeout: 10000 });
     };
 
     window.toggleSaveVenue = function(venueId) {
@@ -625,49 +470,18 @@
       localStorage.setItem('wvh_saved_' + (currentClient?.EMAIL || 'user'), JSON.stringify(savedVenueIds));
       $('savedCount').textContent = savedVenueIds.length;
       renderVenuesList(allVenues);
-      renderSavedVenues();
     };
-
-    function renderSavedVenues() {
-      const box = $('savedVenuesContainer');
-      if (!box) return;
-      const savedList = allVenues.filter(v => savedVenueIds.includes(v.ID_VENUE || v.id_venue));
-
-      if (!savedList.length) {
-        box.innerHTML = `<div style="text-align:center; padding:50px; color:var(--text-muted); font-weight:700;">Belum ada venue yang disimpan.</div>`;
-        return;
-      }
-
-      box.className = 'venue-grid-client';
-      box.innerHTML = savedList.map(v => {
-        const name = v.NAMA_VENUE || v.nama_venue;
-        const kota = v.KOTA || v.kota;
-        const id = v.ID_VENUE || v.id_venue;
-        let coverUrl = 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=600&q=80';
-        if (v.cover && v.cover.url) coverUrl = v.cover.url;
-
-        return `
-          <div class="venue-card-client">
-            <div class="venue-thumb" style="background-image: url('${coverUrl}')">
-              <button type="button" onclick="toggleSaveVenue('${id}')" style="position:absolute; top:12px; right:12px; background:rgba(255,255,255,0.95); border:none; width:38px; height:38px; border-radius:50%; cursor:pointer; display:grid; place-items:center; box-shadow:0 2px 6px rgba(0,0,0,0.15);">❤️</button>
-            </div>
-            <div class="venue-content">
-              <div class="venue-title">${name}</div>
-              <div class="venue-location">📍 ${kota}</div>
-              <button type="button" class="btn primary sm" onclick="handleClientViewDetail('${id}')" style="width:100%; margin-top:auto;">Lihat Detail & Galeri</button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
 
     document.addEventListener('DOMContentLoaded', () => {
       initTheme();
       checkClientSession();
 
-      // Pastikan modal paywall tertutup secara default saat halaman dimuat
+      // PASTIKAN MODAL TERTUTUP SEMPURNA SAAT HALAMAN DIMUAT
       const paywallModal = $('paywallModal');
-      if (paywallModal) paywallModal.classList.add('hidden');
+      if (paywallModal) {
+        paywallModal.style.display = 'none';
+        paywallModal.classList.add('hidden');
+      }
 
       const savedRaw = localStorage.getItem('wvh_saved_' + (currentClient?.EMAIL || 'user'));
       if (savedRaw) {
@@ -675,9 +489,7 @@
       }
       $('savedCount').textContent = savedVenueIds.length;
       
-      loadVenuesData().then(() => {
-        renderSavedVenues();
-      });
+      loadVenuesData();
 
       // Tombol Logout
       $('btnLogout').addEventListener('click', () => {
@@ -692,19 +504,22 @@
         btnWa.addEventListener('click', (e) => {
           e.preventDefault();
           const adminPhone = "6281234567890"; // Ganti dengan nomor WhatsApp Admin lu
-          const clientData = currentClient || JSON.parse(localStorage.getItem('wvh_client') || '{}');
+          const clientData = currentClient || {};
           const msg = `Halo Admin WVH, kuota 3 venue gratis saya sudah habis. Saya ingin konfirmasi pembayaran untuk upgrade akun ke SUBSCRIBE.\n\nNama: ${clientData.NAMA || clientData.nama || '-'}\nEmail: ${clientData.EMAIL || clientData.email || '-'}`;
           window.open(`https://wa.me/${adminPhone}?text=${encodeURIComponent(msg)}`, '_blank');
         });
       }
 
-      // Tombol Tutup Paywall
+      // Tombol Tutup Paywall (Close)
       const btnClose = $('btnClosePaywall');
       if (btnClose) {
         btnClose.addEventListener('click', (e) => {
           e.preventDefault();
           const modal = $('paywallModal');
-          if (modal) modal.classList.add('hidden');
+          if (modal) {
+            modal.style.display = 'none';
+            modal.classList.add('hidden');
+          }
         });
       }
     });

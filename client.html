@@ -117,7 +117,7 @@
         </div>
         <div class="filter-group">
           <label>📍 Filter Kota / Wilayah</label>
-          <select id="filterKota">
+          <select id="">
             <option value="">Semua Kota</option>
           </select>
         </div>
@@ -268,17 +268,37 @@
         const res = await api('listVenues');
         allVenues = res.venues || res.data || [];
         
-        // Populate Dropdown Kota & Kecamatan secara dinamis
+        // 1. Populate Dropdown Kota
         const kotaSet = [...new Set(allVenues.map(v => v.KOTA || v.kota).filter(Boolean))];
         const kotaSelect = $('filterKota');
         if (kotaSelect) {
           kotaSelect.innerHTML = '<option value="">Semua Kota</option>' + kotaSet.map(k => `<option value="${k}">${k}</option>`).join('');
         }
 
-        const kecamatanSet = [...new Set(allVenues.map(v => v.KECAMATAN || v.kecamatan || v.ALAMAT || v.alamat).filter(Boolean))];
+        // 2. Ekstraksi Kecamatan secara otomatis dari Alamat (Mencari kata 'Kec' atau 'Kecamatan')
+        const kecamatanSet = new Set();
+        allVenues.forEach(v => {
+          // Cek jika ada kolom khusus KECAMATAN, atau ambil dari ALAMAT
+          let alamatLengkap = v.KECAMATAN || v.kecamatan || v.ALAMAT || v.alamat || '';
+          
+          // Regex untuk mencari kata yang diawali "Kec" atau "Kecamatan" diikuti nama wilayahnya
+          // Contoh menangkap: "Kec. Ciputat", "Kecamatan Pamulang", "Kec. Serpong"
+          const match = alamatLengkap.match(/(?:kecamatan|kec\.?)\s+([a-zA-Z\s]+)(?:,|\.|$)/i);
+          
+          if (match && match[1]) {
+            // Merapikan hasil (membersihkan spasi berlebih)
+            let namaKec = match[1].trim().split(' ')[0]; // Ambil kata pertama/dua setelah kec
+            // Atau kalau mau ambil utuh beberapa kata wilayahnya:
+            let cleanKec = match[0].replace(/^(kecamatan|kec\.?)\s*/i, '').replace(/[,.]/g, '').trim();
+            if (cleanKec) {
+              kecamatanSet.add(cleanKec.charAt(0).toUpperCase() + cleanKec.slice(1).toLowerCase());
+            }
+          }
+        });
+
         const kecSelect = $('filterKecamatan');
         if (kecSelect) {
-          kecSelect.innerHTML = '<option value="">Semua Kecamatan</option>' + kecamatanSet.map(kc => `<option value="${kc}">${kc}</option>`).join('');
+          kecSelect.innerHTML = '<option value="">Semua Kecamatan</option>' + [...kecamatanSet].map(kc => `<option value="${kc}">${kc}</option>`).join('');
         }
 
         renderVenuesList(allVenues);
@@ -437,7 +457,7 @@
       }, { timeout: 10000 });
     };
 
-    ['searchKeyword', 'filterKota', 'filterKecamatan', 'filterJenis', 'filterFitur', 'filterMinPrice', 'filterMaxPrice', 'sortPrice'].forEach(id => {
+    ['searchKeyword', '', 'filterKecamatan', 'filterJenis', 'filterFitur', 'filterMinPrice', 'filterMaxPrice', 'sortPrice'].forEach(id => {
       const el = $(id);
       if (el) {
         el.addEventListener('input', applyFilters);

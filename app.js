@@ -1,355 +1,391 @@
-(function () {
-  'use strict';
-
-  // GANTI DENGAN URL DEPLOYMENT /exec DARI GOOGLE APPS SCRIPT LO
+<script>
+  // PASTIKAN URL INI ADALAH URL DEPLOYMENT /exec TERBARU DARI GOOGLE APPS SCRIPT LO
   const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxsyukFGT1DwBMZz80hNeHKpMyR0erEL-08t1Wz4HP8p2zQFuHecw7FU_bLL5ZD18Ts/exec';
 
   const $ = id => document.getElementById(id);
-  const THEME_KEY = 'wvh_client_theme';
-  let allVenues = [];
-  let currentFilter = { search: '', city: '', jenis: '' };
+  let venuesData = [];
+  let leadsData = [];
 
-  async function api(action, payload) {
-    if (!GAS_API_URL || GAS_API_URL.includes('GANTI_DENGAN_ID_DEPLOY_LO')) {
-      console.warn('GAS_API_URL belum dikonfigurasi!');
-      return { status: 'GAGAL', message: 'Backend API URL belum dikonfigurasi.' };
-    }
-    const response = await fetch(GAS_API_URL, {
+  function toast(msg, isErr = false) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (isErr ? ' err' : '');
+    setTimeout(() => t.classList.add('hidden'), 3500);
+  }
+
+  async function api(action, payload = {}) {
+    const res = await fetch(GAS_API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: action, payload: payload || {} })
+      body: JSON.stringify({ action, payload })
     });
-    if (!response.ok) throw new Error('Gagal menghubungi server backend.');
-    return await response.json();
+    if (!res.ok) throw new Error('Koneksi HTTP gagal');
+    return await res.json();
   }
 
-  function applyTheme(theme) {
-    const nextTheme = theme === 'light' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', nextTheme);
-    const icon = $('themeToggleIcon');
-    if (icon) icon.textContent = nextTheme === 'dark' ? '☀' : '☾';
+  function switchTab(tab, btn) {
+    document.querySelectorAll('main section').forEach(s => s.classList.add('hidden'));
+    $('tab-' + tab).classList.remove('hidden');
+    document.querySelectorAll('#nav button').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    $('pageTitle').textContent = btn ? btn.textContent.replace(/^[^\w]+/, '') : tab;
+
+    if (tab === 'venues') loadVenues();
+    if (tab === 'media') { loadVenues(); }
+    if (tab === 'leads') loadLeads();
+    if (tab === 'clients') loadClients();
+    if (tab === 'settings') loadSettings();
+    if (tab === 'activity') loadActivity();
   }
 
-  function initTheme() {
-    let savedTheme = 'dark';
-    try { const stored = localStorage.getItem(THEME_KEY); if (stored) savedTheme = stored; } catch (_) {}
-    applyTheme(savedTheme);
+  async function checkHealth() {
+    try {
+      $('healthOutput').textContent = 'Menghubungi backend...';
+      const res = await api('health');
+      $('healthOutput').textContent = JSON.stringify(res, null, 2);
+      toast('Backend terhubung!');
+    } catch (e) {
+      $('healthOutput').textContent = 'ERROR: ' + e.message;
+      toast('Gagal terhubung ke backend', true);
+    }
   }
 
-  function toggleTheme() {
-    const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
-    const nextTheme = current === 'dark' ? 'light' : 'dark';
-    applyTheme(nextTheme);
-    try { localStorage.setItem(THEME_KEY, nextTheme); } catch (_) {}
+  // --- VENUE ---
+  async function loadVenues() {
+    try {
+      const res = await api('listVenues');
+      if (res.status !== 'BERHASIL') throw new Error(res.message);
+      venuesData = res.venues || [];
+      $('statVenues').textContent = venuesData.length;
+      renderVenues();
+
+      const opts = '<option value="">-- Pilih Venue --</option>' +
+        venuesData.map(v => `<option value="${v.ID_VENUE}">${v.NAMA_VENUE} (${v.KOTA})</option>`).join('');
+      $('mediaVenueSelect').innerHTML = opts;
+      $('lVenue').innerHTML = opts;
+    } catch (e) {
+      toast(e.message, true);
+    }
   }
 
-  function formatRupiah(amount) {
-    if (amount == null || !Number.isFinite(Number(amount)) || amount === 0) return 'Hubungi Admin';
-    return 'Rp' + Math.round(Number(amount)).toLocaleString('id-ID');
-  }
-
-  // --- RENDER KATALOG & REKOMENDASI ---
-  function renderVenues(venues) {
-    const host = $('venueList');
-    if (!host) return;
-    host.replaceChildren();
-
-    if (!venues || venues.length === 0) {
-      host.innerHTML = '<p class="no-data">Tidak ada venue yang ditemukan sesuai filter.</p>';
+  function renderVenues() {
+    const q = ($('venueSearch').value || '').toLowerCase();
+    const list = venuesData.filter(v =>
+      String(v.NAMA_VENUE + v.KOTA + v.ID_VENUE).toLowerCase().includes(q)
+    );
+    const box = $('venuesContainer');
+    if (!list.length) {
+      box.className = 'empty';
+      box.textContent = 'Tidak ada data venue.';
       return;
     }
-
-    venues.forEach(v => {
-      const card = document.createElement('article');
-      card.className = 'venue-card';
-
-      const img = document.createElement('img');
-      img.className = 'venue-card-cover';
-      img.src = v.coverUrl || 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&q=80';
-      img.alt = v.name || 'Venue';
-
-      const body = document.createElement('div');
-      body.className = 'venue-card-body';
-
-      const title = document.createElement('h3');
-      title.textContent = v.name || 'Venue Pernikahan';
-
-      const city = document.createElement('p');
-      city.className = 'venue-city';
-      city.textContent = `📍 ${v.city || 'Lokasi'} (${v.jenisVenue || 'Indoor'})`;
-
-      const price = document.createElement('p');
-      price.className = 'venue-card-price';
-      price.textContent = formatRupiah(v.price);
-
-      const capacity = document.createElement('p');
-      capacity.className = 'venue-capacity';
-      capacity.textContent = `👥 Kapasitas: ${v.capacity ? v.capacity + ' Orang' : '—'}`;
-
-      const btnDetail = document.createElement('button');
-      btnDetail.className = 'btn-detail';
-      btnDetail.textContent = 'Lihat Detail & Tanya Venue';
-      btnDetail.onclick = () => openVenueDetail(v);
-
-      body.append(title, city, capacity, price, btnDetail);
-      card.append(img, body);
-      host.appendChild(card);
-    });
-  }
-
-  // --- FILTER & PENCARIAN AKTIF ---
-  function filterAndRender() {
-    let filtered = allVenues.filter(v => {
-      const matchSearch = !currentFilter.search || 
-        v.name.toLowerCase().includes(currentFilter.search.toLowerCase()) || 
-        v.city.toLowerCase().includes(currentFilter.search.toLowerCase()) ||
-        v.address.toLowerCase().includes(currentFilter.search.toLowerCase());
-      
-      const matchCity = !currentFilter.city || v.city.toLowerCase() === currentFilter.city.toLowerCase();
-      const matchJenis = !currentFilter.jenis || v.jenisVenue.toLowerCase() === currentFilter.jenis.toLowerCase();
-
-      return matchSearch && matchCity && matchJenis;
-    });
-
-    renderVenues(filtered);
-  }
-
-  function setupFilters() {
-    const searchInput = $('searchQuery');
-    const citySelect = $('filterCity');
-    const jenisSelect = $('filterJenis');
-
-    if (searchInput) {
-      searchInput.oninput = e => {
-        currentFilter.search = e.target.value.trim();
-        filterAndRender();
-      };
-    }
-
-    if (citySelect) {
-      // Populate unique cities
-      const cities = [...new Set(allVenues.map(v => v.city).filter(Boolean))];
-      cities.sort().forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c;
-        opt.textContent = c;
-        citySelect.appendChild(opt);
-      });
-
-      citySelect.onchange = e => {
-        currentFilter.city = e.target.value;
-        filterAndRender();
-      };
-    }
-
-    if (jenisSelect) {
-      jenisSelect.onchange = e => {
-        currentFilter.jenis = e.target.value;
-        filterAndRender();
-      };
-    }
-  }
-
-  // --- MODAL DETAIL VENUE & LEADS FORM ---
-  function openVenueDetail(v) {
-    let modal = $('venueDetailModal');
-    if (!modal) {
-      modal = document.createElement('div');
-      modal.id = 'venueDetailModal';
-      modal.className = 'modal-overlay';
-      document.body.appendChild(modal);
-    }
-
-    modal.innerHTML = `
-      <div class="modal-content">
-        <button class="modal-close" id="closeModalBtn">&times;</button>
-        <img src="${v.coverUrl}" alt="${v.name}" class="modal-img">
-        <h2>${v.name}</h2>
-        <p><strong>Kota:</strong> ${v.city}</p>
-        <p><strong>Alamat:</strong> ${v.address || '—'}</p>
-        <p><strong>Jenis Venue:</strong> ${v.jenisVenue}</p>
-        <p><strong>Kapasitas:</strong> ${v.capacity ? v.capacity + ' Tamu' : '—'}</p>
-        <p><strong>Perkiraan Harga:</strong> <span class="price-tag">${formatRupiah(v.price)}</span></p>
-        <div class="modal-actions">
-          <a href="${v.mapsUrl}" target="_blank" class="btn-maps">Buka Google Maps</a>
+    box.className = 'venue-grid';
+    box.innerHTML = list.map(v => `
+      <div class="venue-item">
+        ${v.cover && v.cover.url
+          ? `<img class="venue-cover" src="${formatDriveUrl(v.cover.url)}" alt="">`
+          : `<div class="venue-cover-empty">Belum ada foto cover</div>`}
+        <div class="venue-body">
+          <div class="venue-title">${v.NAMA_VENUE}</div>
+          <div class="venue-meta">📍 ${v.KOTA || '-'} • ${v.JENIS_VENUE || 'Venue'}</div>
+          <div class="venue-meta">Status: <strong style="color:${v.STATUS==='AKTIF'?'var(--success)':'var(--danger)'}">${v.STATUS}</strong></div>
+          <div class="venue-actions">
+            <button class="btn primary sm" onclick="editVenue('${v.ID_VENUE}')">Edit</button>
+            <button class="btn sm" onclick="jumpToMedia('${v.ID_VENUE}')">Foto</button>
+          </div>
         </div>
-        <hr style="margin: 20px 0; border:0; border-top:1px solid var(--border-color);">
-        <h3>Formulir Tanya Venue / Jadwal Survei</h3>
-        <form id="leadForm" class="lead-form">
-          <input type="hidden" id="leadVenueId" value="${v.venueId}">
-          <div class="form-group">
-            <label>Nama Lengkap</label>
-            <input type="text" id="leadName" required placeholder="Nama Anda">
-          </div>
-          <div class="form-group">
-            <label>Nomor WhatsApp</label>
-            <input type="text" id="leadWa" required placeholder="08xxxxxxxxxx">
-          </div>
-          <div class="form-group">
-            <label>Perkiraan Tanggal Acara</label>
-            <input type="date" id="leadDate" required>
-          </div>
-          <div class="form-group">
-            <label>Jumlah Tamu</label>
-            <input type="number" id="leadGuests" placeholder="Contoh: 300">
-          </div>
-          <div class="form-group">
-            <label>Pesan / Catatan</label>
-            <textarea id="leadMessage" placeholder="Pertanyaan seputar ketersediaan tanggal, dll."></textarea>
-          </div>
-          <button type="submit" class="btn-submit-lead">Kirim Permintaan ke Admin</button>
-        </form>
       </div>
-    `;
-
-    modal.style.display = 'flex';
-
-    $('closeModalBtn').onclick = () => { modal.style.display = 'none'; };
-    modal.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
-
-    // Handle Submit Lead
-    $('leadForm').onsubmit = async e => {
-      e.preventDefault();
-      const payload = {
-        venueId: v.venueId,
-        jenisPermintaan: 'TANYA_VENUE',
-        nama: $('leadName').value,
-        whatsapp: $('leadWa').value,
-        tanggalAcara: $('leadDate').value,
-        jumlahTamu: $('leadGuests').value,
-        pesan: $('leadMessage').value
-      };
-
-      const btn = e.target.querySelector('button[type="submit"]');
-      btn.textContent = 'Mengirim...';
-      btn.disabled = true;
-
-      try {
-        const res = await api('submitLead', payload);
-        if (res && res.status === 'BERHASIL') {
-          alert('Berhasil! Permintaan Anda telah dikirim ke admin.');
-          modal.style.display = 'none';
-        } else {
-          alert('Gagal mengirim: ' + (res?.message || 'Kesalahan server'));
-        }
-      } catch (err) {
-        alert('Terjadi kesalahan jaringan.');
-      } finally {
-        btn.textContent = 'Kirim Permintaan ke Admin';
-        btn.disabled = false;
-      }
-    };
+    `).join('');
   }
 
-  // --- LOAD DATA UTAMA ---
-  async function loadData() {
-    $('venueLoading')?.classList.remove('hidden');
-    $('venueList')?.classList.add('hidden');
+  function jumpToMedia(id) {
+    switchTab('media', document.querySelectorAll('#nav button')[2]);
+    setTimeout(() => { $('mediaVenueSelect').value = id; loadMedia(); }, 300);
+  }
+
+  function openVenueModal() {
+    $('vModalTitle').textContent = 'Tambah Venue Baru';
+    $('vId').value = '';
+    ['vName','vCity','vAddress','vCap','vPrice','vPriceGuests','vPriceNote','vContact','vMaps','vFacilities','vDesc'].forEach(i => $(i).value = '');
+    $('vStatus').value = 'AKTIF';
+    $('vRec').checked = false;
+    $('vDeleteBtn').classList.add('hidden');
+    $('venueModal').classList.remove('hidden');
+  }
+
+  function closeVenueModal() { $('venueModal').classList.add('hidden'); }
+
+  function editVenue(id) {
+    const v = venuesData.find(x => x.ID_VENUE === id);
+    if (!v) return;
+    $('vModalTitle').textContent = 'Edit Venue';
+    $('vId').value = v.ID_VENUE;
+    $('vName').value = v.NAMA_VENUE || '';
+    $('vCity').value = v.KOTA || '';
+    $('vAddress').value = v.ALAMAT || '';
+    $('vType').value = v.JENIS_VENUE || 'Wedding Hall';
+    $('vFeature').value = v.FITUR_VENUE || 'Indoor';
+    $('vStatus').value = v.STATUS || 'AKTIF';
+    $('vCap').value = v.KAPASITAS || '';
+    $('vContact').value = v.KONTAK || '';
+    $('vMaps').value = v.GOOGLE_MAPS_URL || '';
+    $('vFacilities').value = v.FASILITAS || '';
+    $('vDesc').value = v.DESKRIPSI || '';
+    $('vRec').checked = Number(v.REKOMENDASI_HOME) === 1;
+
     try {
-      const res = await api('getPublicData', {});
-      if (!res || res.status !== 'BERHASIL') throw new Error(res?.message || 'Gagal memuat venue.');
-      
-      allVenues = Array.isArray(res.venues) ? res.venues : [];
-      
-      // Render Rekomendasi Home jika ada section-nya, atau render semua venue
-      const recVenues = allVenues.filter(v => v.isHomeRecommendation === 1);
-      renderVenues(recVenues.length > 0 ? recVenues : allVenues);
-      
-      setupFilters();
-
-      $('venueLoading')?.classList.add('hidden');
-      $('venueList')?.classList.remove('hidden');
-    } catch (err) {
-      console.error(err);
-      $('venueLoading')?.classList.add('hidden');
-      $('venueError')?.classList.remove('hidden');
+      const p = JSON.parse(v.HARGA_INFO || '{}');
+      $('vPrice').value = p.amount || '';
+      $('vPriceGuests').value = p.guests || '';
+      $('vPriceNote').value = p.note || '';
+    } catch (_) {
+      $('vPrice').value = ''; $('vPriceGuests').value = ''; $('vPriceNote').value = '';
     }
+
+    $('vDeleteBtn').classList.remove('hidden');
+    $('venueModal').classList.remove('hidden');
   }
 
-  function init() {
-    initTheme();
-    $('themeToggle')?.addEventListener('click', toggleTheme);
-    loadData();
+  async function saveVenue() {
+    const venue = {
+      id: $('vId').value,
+      name: $('vName').value.trim(),
+      city: $('vCity').value.trim(),
+      address: $('vAddress').value.trim(),
+      venueType: $('vType').value,
+      venueFeature: $('vFeature').value,
+      status: $('vStatus').value,
+      capacity: $('vCap').value,
+      priceInfo: JSON.stringify({
+        amount: $('vPrice').value ? Number($('vPrice').value) : '',
+        guests: $('vPriceGuests').value ? Number($('vPriceGuests').value) : '',
+        note: $('vPriceNote').value.trim()
+      }),
+      contact: $('vContact').value.trim(),
+      googleMapsUrl: $('vMaps').value.trim(),
+      facilities: $('vFacilities').value.trim(),
+      description: $('vDesc').value.trim(),
+      isHomeRecommended: $('vRec').checked
+    };
+    if (!venue.name || !venue.city) return toast('Nama & Kota wajib diisi!', true);
+    try {
+      const res = await api('saveVenue', { venue });
+      if (res.status !== 'BERHASIL') throw new Error(res.message);
+      toast(res.message);
+      closeVenueModal();
+      loadVenues();
+    } catch (e) { toast(e.message, true); }
   }
 
-  // --- MODAL AUTH (LOGIN / SIGNUP) ---
-  function setupAuthModal() {
-    const btnLogin = $('btnLoginModal');
-    const modal = $('authModal');
-    const closeBtn = $('closeAuthModal');
-    const toggleLink = $('authToggleLink');
-    const authTitle = $('authModalTitle');
-    const nameGroup = $('nameGroup');
-    const submitBtn = $('authSubmitBtn');
-    const toggleText = $('authToggleText');
-    const authForm = $('authForm');
+  async function deleteVenue() {
+    const id = $('vId').value;
+    if (!id || !confirm('Hapus permanen venue ini?')) return;
+    try {
+      const res = await api('deleteVenue', { venueId: id });
+      if (res.status !== 'BERHASIL') throw new Error(res.message);
+      toast(res.message);
+      closeVenueModal();
+      loadVenues();
+    } catch (e) { toast(e.message, true); }
+  }
 
-    let isRegisterMode = false;
+  // --- MEDIA ---
+  function formatDriveUrl(url) {
+    const s = String(url || '').trim();
+    const m = s.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || s.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1000` : s;
+  }
 
-    if (btnLogin && modal) {
-      btnLogin.onclick = () => { modal.style.display = 'flex'; };
-    }
-    if (closeBtn && modal) {
-      closeBtn.onclick = () => { modal.style.display = 'none'; };
-    }
-    if (modal) {
-      modal.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
-    }
+  async function loadMedia() {
+    const venueId = $('mediaVenueSelect').value;
+    const box = $('mediaContainer');
+    if (!venueId) { box.className = 'empty'; box.textContent = 'Pilih venue di atas.'; return; }
+    try {
+      const res = await api('listMedia', { venueId });
+      const list = res.media || [];
+      if (!list.length) { box.className = 'empty'; box.textContent = 'Belum ada foto untuk venue ini.'; return; }
+      box.className = 'media-grid';
+      box.innerHTML = list.map(m => `
+        <div class="media-item">
+          <img src="${formatDriveUrl(m.URL_TAMPIL)}" alt="">
+          <div class="media-item-body">
+            <strong style="display:block;font-size:13px;">${m.NAMA_FILE || 'Foto'}</strong>
+            ${String(m.IS_COVER).toUpperCase()==='TRUE' ? '<span style="color:var(--cyan);font-size:11px;font-weight:700;">★ COVER UTAMA</span>' : ''}
+            <div style="display:flex;gap:6px;margin-top:8px;">
+              <button class="btn sm" onclick="setCover('${m.ID_MEDIA}')">Cover</button>
+              <button class="btn danger sm" onclick="archiveMedia('${m.ID_MEDIA}')">Hapus</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    } catch (e) { toast(e.message, true); }
+  }
 
-    if (toggleLink) {
-      toggleLink.onclick = e => {
-        e.preventDefault();
-        isRegisterMode = !isRegisterMode;
-        if (isRegisterMode) {
-          authTitle.textContent = 'Daftar Akun Baru';
-          nameGroup.style.display = 'block';
-          submitBtn.textContent = 'Daftar';
-          toggleText.textContent = 'Sudah punya akun?';
-          toggleLink.textContent = 'Masuk di sini';
-        } else {
-          authTitle.textContent = 'Masuk ke Akun';
-          nameGroup.style.display = 'none';
-          submitBtn.textContent = 'Masuk';
-          toggleText.textContent = 'Belum punya akun?';
-          toggleLink.textContent = 'Daftar di sini';
-        }
-      };
-    }
+  async function saveMediaUrl() {
+    const venueId = $('mediaVenueSelect').value;
+    const url = $('mediaUrl').value.trim();
+    const name = $('mediaName').value.trim() || 'Foto Venue';
+    const isCover = $('mediaIsCover').checked;
+    if (!venueId || !url) return toast('Pilih venue dan isi URL foto!', true);
+    try {
+      const res = await api('addMediaUrl', { venueId, url, name, isCover });
+      if (res.status !== 'BERHASIL') throw new Error(res.message);
+      toast(res.message);
+      $('mediaUrl').value = ''; $('mediaName').value = ''; $('mediaIsCover').checked = false;
+      loadMedia();
+    } catch (e) { toast(e.message, true); }
+  }
 
-    if (authForm) {
-      authForm.onsubmit = async e => {
-        e.preventDefault();
-        const email = $('authEmail').value;
-        const password = $('authPassword').value;
-        const nama = $('authName')?.value || '';
+  async function setCover(mediaId) {
+    try {
+      await api('setMediaCover', { mediaId });
+      toast('Cover diperbarui!');
+      loadMedia();
+    } catch (e) { toast(e.message, true); }
+  }
 
-        const action = isRegisterMode ? 'registerClient' : 'loginClient';
-        const payload = isRegisterMode ? { email, passwordHash: password, nama } : { email, password };
+  async function archiveMedia(mediaId) {
+    if (!confirm('Hapus foto ini dari galeri?')) return;
+    try {
+      await api('archiveMedia', { mediaId });
+      toast('Foto dihapus.');
+      loadMedia();
+    } catch (e) { toast(e.message, true); }
+  }
 
-        submitBtn.textContent = 'Memproses...';
-        submitBtn.disabled = true;
+  // --- LEADS ---
+  async function loadLeads() {
+    try {
+      const res = await api('listLeads');
+      leadsData = res.leads || [];
+      $('statLeads').textContent = leadsData.length;
+      const box = $('leadsContainer');
+      if (!leadsData.length) { box.className = 'empty'; box.textContent = 'Belum ada leads.'; return; }
+      box.className = 'table-wrap';
+      box.innerHTML = `<table><thead><tr><th>Nama</th><th>WhatsApp</th><th>Venue</th><th>Status</th><th>Survei</th><th>Aksi</th></tr></thead><tbody>` +
+        leadsData.map(l => {
+          const wa = String(l.WHATSAPP || '').replace(/\D/g, '').replace(/^0/, '62');
+          return `<tr>
+            <td><strong>${l.NAMA}</strong></td>
+            <td>${l.WHATSAPP}</td>
+            <td>${l.NAMA_VENUE || '-'}</td>
+            <td>${l.STATUS}</td>
+            <td>${l.TANGGAL_SURVEI || '-'} ${l.WAKTU_SURVEI || ''}</td>
+            <td style="display:flex;gap:6px;">
+              <button class="btn sm" onclick="editLead('${l.ID_LEAD}')">Edit</button>
+              ${wa ? `<a class="btn wa" href="https://wa.me/${wa}" target="_blank">WA ↗</a>` : ''}
+            </td>
+          </tr>`;
+        }).join('') + `</tbody></table>`;
+    } catch (e) { toast(e.message, true); }
+  }
 
-        try {
-          const res = await api(action, payload);
-          if (res && res.status === 'BERHASIL') {
-            alert(res.message || 'Berhasil!');
-            modal.style.display = 'none';
-            if (!isRegisterMode && res.client) {
-              btnLogin.textContent = 'Halo, ' + res.client.nama;
-            }
-          } else {
-            alert('Gagal: ' + (res?.message || 'Terjadi kesalahan'));
+  function openLeadModal() {
+    $('lModalTitle').textContent = 'Tambah Lead Manual';
+    $('lId').value = ''; $('lName').value = ''; $('lWa').value = ''; $('lNotes').value = '';
+    $('leadModal').classList.remove('hidden');
+  }
+  function closeLeadModal() { $('leadModal').classList.add('hidden'); }
+
+  function editLead(id) {
+    const l = leadsData.find(x => x.ID_LEAD === id);
+    if (!l) return;
+    $('lModalTitle').textContent = 'Update Lead';
+    $('lId').value = l.ID_LEAD;
+    $('lName').value = l.NAMA || '';
+    $('lWa').value = l.WHATSAPP || '';
+    $('lVenue').value = l.ID_VENUE || '';
+    $('lStatus').value = l.STATUS || 'BARU';
+    $('lSurveyDate').value = l.TANGGAL_SURVEI || '';
+    $('lSurveyTime').value = l.WAKTU_SURVEI || '';
+    $('lSurveyStatus').value = l.STATUS_SURVEI || 'BELUM_DIJADWALKAN';
+    $('lNotes').value = l.CATATAN_ADMIN || '';
+    $('leadModal').classList.remove('hidden');
+  }
+
+  async function saveLead() {
+    const id = $('lId').value;
+    try {
+      if (id) {
+        await api('updateLead', {
+          lead: {
+            leadId: id, status: $('lStatus').value, notes: $('lNotes').value,
+            surveyDate: $('lSurveyDate').value, surveyTime: $('lSurveyTime').value, surveyStatus: $('lSurveyStatus').value
           }
-        } catch (err) {
-          alert('Koneksi server gagal.');
-        } finally {
-          submitBtn.textContent = isRegisterMode ? 'Daftar' : 'Masuk';
-          submitBtn.disabled = false;
-        }
-      };
-    }
+        });
+      } else {
+        await api('createLead', {
+          name: $('lName').value, whatsapp: $('lWa').value, venueId: $('lVenue').value, message: $('lNotes').value
+        });
+      }
+      toast('Lead disimpan!');
+      closeLeadModal();
+      loadLeads();
+    } catch (e) { toast(e.message, true); }
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
-  else init();
-})();
+  // --- CLIENTS ---
+  async function loadClients() {
+    try {
+      const res = await api('listClients');
+      const list = res.clients || [];
+      $('statClients').textContent = list.length;
+      const box = $('clientsContainer');
+      if (!list.length) { box.className = 'empty'; box.textContent = 'Belum ada klien.'; return; }
+      box.className = 'table-wrap';
+      box.innerHTML = `<table><thead><tr><th>ID</th><th>Nama</th><th>Email</th><th>Status</th></tr></thead><tbody>` +
+        list.map(c => `<tr><td>${c.ID_KLIEN}</td><td><strong>${c.NAMA}</strong></td><td>${c.EMAIL}</td><td>${c.STATUS}</td></tr>`).join('') + `</tbody></table>`;
+    } catch (e) { toast(e.message, true); }
+  }
+
+  async function addClient() {
+    const name = $('newClientName').value.trim();
+    const email = $('newClientEmail').value.trim();
+    if (!name || !email) return toast('Nama & email wajib diisi!', true);
+    try {
+      await api('createClient', { name, email });
+      toast('Akun klien dibuat!');
+      $('newClientName').value = ''; $('newClientEmail').value = '';
+      loadClients();
+    } catch (e) { toast(e.message, true); }
+  }
+
+  // --- SETTINGS & ACTIVITY ---
+  async function loadSettings() {
+    try {
+      const res = await api('getSettings');
+      const map = Object.fromEntries((res.settings || []).map(s => [s.key, s.value]));
+      $('setWa').value = map.ADMIN_WHATSAPP || '';
+      $('setBanner').value = map.PORTAL_BANNER_URL || '';
+      $('setPopup').value = map.PORTAL_POPUP_URL || '';
+    } catch (e) { toast(e.message, true); }
+  }
+
+  async function saveSettings() {
+    try {
+      await api('setSetting', { key: 'ADMIN_WHATSAPP', value: $('setWa').value.trim() });
+      await api('setSetting', { key: 'PORTAL_BANNER_URL', value: $('setBanner').value.trim() });
+      await api('setSetting', { key: 'PORTAL_POPUP_URL', value: $('setPopup').value.trim() });
+      toast('Pengaturan portal disimpan!');
+    } catch (e) { toast(e.message, true); }
+  }
+
+  async function loadActivity() {
+    try {
+      const res = await api('listActivity');
+      const list = res.activity || [];
+      const box = $('activityContainer');
+      if (!list.length) { box.className = 'empty'; box.textContent = 'Belum ada log.'; return; }
+      box.className = 'table-wrap';
+      box.innerHTML = `<table><thead><tr><th>Waktu</th><th>Aksi</th><th>Objek</th><th>Keterangan</th></tr></thead><tbody>` +
+        list.map(a => `<tr><td>${a.WAKTU}</td><td><strong>${a.AKSI}</strong></td><td>${a.OBJEK}</td><td>${a.KETERANGAN}</td></tr>`).join('') + `</tbody></table>`;
+    } catch (e) { toast(e.message, true); }
+  }
+
+  // Load awal saat buka web
+  window.addEventListener('DOMContentLoaded', () => {
+    loadVenues();
+    loadClients();
+    loadLeads();
+  });
+</script>

@@ -24,7 +24,6 @@ body {
   min-height: 100vh;
 }
 
-/* Layout Shell */
 .app-shell { display: grid; grid-template-columns: 250px 1fr; min-height: 100vh; }
 aside {
   background: rgba(13, 18, 30, 0.85);
@@ -44,14 +43,14 @@ aside {
 .brand-text span { font-size: 11px; color: var(--cyan); font-weight: 600; letter-spacing: 0.08em; }
 
 nav { display: flex; flex-direction: column; gap: 6px; }
-nav button {
+.nav-btn {
   display: flex; align-items: center; gap: 12px; width: 100%;
   padding: 12px 14px; border-radius: 12px; border: 1px solid transparent;
   background: transparent; color: var(--muted); font: inherit; font-weight: 600;
   cursor: pointer; text-align: left; transition: all 0.2s;
 }
-nav button:hover { background: rgba(255,255,255,0.04); color: var(--text); }
-nav button.active {
+.nav-btn:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+.nav-btn.active {
   background: rgba(139, 92, 246, 0.14);
   border-color: rgba(139, 92, 246, 0.35);
   color: #fff;
@@ -62,13 +61,20 @@ main { padding: 28px 32px; max-width: 1360px; width: 100%; }
   display: flex; justify-content: space-between; align-items: center;
   margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
 }
+.eyebrow { font-size: 11px; color: var(--cyan); font-weight: 700; letter-spacing: 0.12em; }
 .topbar h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
-.badge-open {
-  padding: 6px 12px; border-radius: 99px; font-size: 11px; font-weight: 700;
-  background: rgba(16, 185, 129, 0.14); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3);
+
+.status-pill {
+  padding: 6px 14px; border-radius: 99px; font-size: 12px; font-weight: 700;
+  background: rgba(148, 163, 184, 0.15); color: var(--muted); border: 1px solid var(--border);
+}
+.status-pill.online {
+  background: rgba(16, 185, 129, 0.14); color: var(--success); border-color: rgba(16, 185, 129, 0.3);
+}
+.status-pill.offline {
+  background: rgba(244, 63, 94, 0.14); color: var(--danger); border-color: rgba(244, 63, 94, 0.3);
 }
 
-/* Components */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -90,7 +96,11 @@ main { padding: 28px 32px; max-width: 1360px; width: 100%; }
 .stat-card .label { font-size: 12px; color: var(--muted); font-weight: 600; }
 .stat-card .value { font-size: 30px; font-weight: 800; margin-top: 6px; }
 
-/* Buttons & Inputs */
+.code-box {
+  background: #0b0f19; padding: 14px; border-radius: 10px;
+  font-size: 12px; color: var(--cyan); overflow-x: auto; white-space: pre-wrap;
+}
+
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   padding: 10px 16px; border-radius: 10px; border: 1px solid var(--border);
@@ -104,6 +114,13 @@ main { padding: 28px 32px; max-width: 1360px; width: 100%; }
 .btn.wa { background: #15803d; border: 0; color: #fff; font-size: 12px; padding: 7px 12px; }
 .btn.sm { padding: 7px 12px; font-size: 12px; }
 
+.btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.justify-end { justify-content: flex-end; }
+.ml-auto { margin-left: auto; }
+.mt-14 { margin-top: 14px; }
+.mb-18 { margin-bottom: 18px; }
+
 .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
 .field label { font-size: 12px; font-weight: 600; color: var(--muted); }
 input, select, textarea {
@@ -112,10 +129,12 @@ input, select, textarea {
   font: inherit; outline: none; transition: border-color 0.2s;
 }
 input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+.checkbox-label { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 500; }
+.checkbox-label input { width: auto; }
+
 .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 
-/* Venue Cards */
 .venue-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 16px; }
 .venue-item {
   background: var(--surface-2); border: 1px solid var(--border);
@@ -132,19 +151,16 @@ input:focus, select:focus, textarea:focus { border-color: var(--primary); }
 .venue-actions { display: flex; gap: 8px; margin-top: auto; padding-top: 10px; }
 .venue-actions .btn { flex: 1; }
 
-/* Table */
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; min-width: 600px; }
 th, td { padding: 12px; border-bottom: 1px solid var(--border); text-align: left; font-size: 13px; }
 th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
 
-/* Media Gallery */
 .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-top: 16px; }
 .media-item { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
 .media-item img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
 .media-item-body { padding: 12px; }
 
-/* Modal */
 .modal-backdrop {
   position: fixed; inset: 0; z-index: 999; background: rgba(4, 7, 15, 0.82);
   backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 16px;
@@ -154,7 +170,6 @@ th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spa
   width: min(720px, 100%); max-height: 90vh; overflow-y: auto; padding: 24px;
 }
 
-/* Toast */
 .toast {
   position: fixed; bottom: 20px; right: 20px; z-index: 1000;
   padding: 12px 18px; border-radius: 12px; font-weight: 600; font-size: 13px;
@@ -169,7 +184,7 @@ th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spa
   .app-shell { grid-template-columns: 1fr; }
   aside { border-right: 0; border-bottom: 1px solid var(--border); padding: 14px; gap: 12px; }
   nav { flex-direction: row; overflow-x: auto; padding-bottom: 4px; }
-  nav button { white-space: nowrap; width: auto; padding: 9px 14px; }
+  .nav-btn { white-space: nowrap; width: auto; padding: 9px 14px; }
   main { padding: 16px; }
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
 }

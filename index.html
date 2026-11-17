@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wedding Venue Hub — Temukan Venue Impian Anda</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./public-style.css?v=1">
+</head>
+<body>
+
+  <!-- HEADER / NAVBAR PUBLIK -->
+  <header class="public-header">
+    <div class="brand">
+      <div class="brand-icon">W</div>
+      <div class="brand-text">
+        <strong>Wedding Venue Hub</strong>
+        <span>PUBLIC PORTAL</span>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <button type="button" class="btn sm" id="btnOpenLogin">Masuk Klien</button>
+      <button type="button" class="btn primary sm" id="btnOpenRegister">Daftar Akun Baru</button>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section class="hero-section" id="heroBanner">
+    <div class="hero-content">
+      <span class="eyebrow">EKSKLUSIF & ELEGAN</span>
+      <h1>Temukan Venue Pernikahan Impian Anda</h1>
+      <p>Jelajahi pilihan wedding hall, hotel, dan venue terbaik dengan penawaran transparan. Daftar akun gratis untuk membuka akses penuh ke seluruh direktori dan jadwal survei.</p>
+    </div>
+  </section>
+
+  <!-- MAIN CONTAINER PUBLIK -->
+  <main class="public-main">
+    <div class="section-title-wrap">
+      <h2>Venue Rekomendasi Utama</h2>
+      <p>Daftar atau masuk untuk melihat galeri foto lengkap, harga paket, dan booking jadwal survei.</p>
+    </div>
+
+    <!-- Grid Venue Publik -->
+    <div id="publicVenuesContainer" class="venue-grid">
+      <div class="empty">Memuat venue rekomendasi...</div>
+    </div>
+  </main>
+
+  <!-- MODAL AUTH (LOGIN / REGISTER) -->
+  <div id="authModal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="card-header">
+        <h2 id="authModalTitle">Daftar Akun Baru</h2>
+        <button type="button" class="btn sm" data-close-modal="authModal">✕</button>
+      </div>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">
+        Nikmati akses penuh ke seluruh fitur, galeri eksklusif, dan penjadwalan survei venue.
+      </p>
+      
+      <div id="registerFormView">
+        <div class="field">
+          <label>Nama Lengkap *</label>
+          <input id="regName" placeholder="Nama Anda / Pasangan">
+        </div>
+        <div class="field">
+          <label>Email Aktif *</label>
+          <input id="regEmail" type="email" placeholder="email@domain.com">
+        </div>
+        <button type="button" class="btn primary w-full mt-14" id="btnSubmitRegister">Buat Akun Sekarang</button>
+        <p style="text-align:center;margin-top:14px;font-size:13px;color:var(--muted);">
+          Sudah punya akun? <a href="#" id="switchToLogin" style="color:var(--cyan);font-weight:600;">Masuk di sini</a>
+        </p>
+      </div>
+
+      <div id="loginFormView" class="hidden">
+        <div class="field">
+          <label>Email Terdaftar *</label>
+          <input id="loginEmail" type="email" placeholder="email@domain.com">
+        </div>
+        <button type="button" class="btn primary w-full mt-14" id="btnSubmitLogin">Masuk ke Portal</button>
+        <p style="text-align:center;margin-top:14px;font-size:13px;color:var(--muted);">
+          Belum punya akun? <a href="#" id="switchToRegister" style="color:var(--cyan);font-weight:600;">Daftar baru</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL GATE (RESTRICTION SAAT KLIK DETAIL) -->
+  <div id="gateModal" class="modal-backdrop hidden">
+    <div class="modal-box" style="max-width:420px;text-align:center;padding:32px;">
+      <div style="font-size:36px;margin-bottom:12px;">🔒</div>
+      <h2>Akses Eksklusif Klien</h2>
+      <p style="color:var(--muted);margin:12px 0 24px 0;font-size:13px;">
+        Silakan daftar akun baru atau masuk terlebih dahulu untuk melihat galeri lengkap, detail harga, dan memesan jadwal survei venue ini.
+      </p>
+      <div class="btn-group" style="display:flex;gap:10px;justify-content:center;">
+        <button type="button" class="btn" data-close-modal="gateModal">Batal</button>
+        <button type="button" class="btn primary" id="btnTriggerAuthFromGate">Daftar / Masuk Akun</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP PROMOSI / BANNER 4:5 (OTOMATIS DARI SETTING ADMIN) -->
+  <div id="promoPopup" class="modal-backdrop hidden">
+    <div class="modal-box" style="padding:0;background:transparent;border:0;width:min(380px,90vw);">
+      <button type="button" class="btn sm" id="closePopup" style="position:absolute;right:10px;top:10px;z-index:10;background:rgba(0,0,0,0.7);border:0;color:#fff;">✕</button>
+      <img id="popupImage" src="" alt="Promo Banner" style="width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:16px;display:block;">
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="./public-app.js?v=1"></script>
+</body>
+</html>

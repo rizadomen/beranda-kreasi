@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -23,7 +23,7 @@
     
     <div style="display: flex; align-items: center; gap: 12px;">
       <!-- TOMBOL DARK/LIGHT MODE -->
-      <button type="button" class="btn outline sm" id="themeToggleBtn" onclick="toggleTheme()" title="Ganti Tema">🌙</button>
+      <button type="button" class="btn outline sm" id="themeToggleBtn" title="Ganti Tema">🌙</button>
       
       <div class="nav-actions" style="display: flex; gap: 8px;">
         <button type="button" class="btn sm" id="btnOpenLogin">Masuk Klien</button>
@@ -119,7 +119,7 @@
     </div>
   </div>
 
-  <!-- POPUP PROMOSI / BANNER 4:5 (OTOMATIS DARI SETTING ADMIN) -->
+  <!-- POPUP PROMOSI / BANNER 4:5 -->
   <div id="promoPopup" class="modal-backdrop hidden">
     <div class="modal-box" style="padding:0;background:transparent;border:0;width:min(380px,90vw);">
       <button type="button" class="btn sm" id="closePopup" style="position:absolute;right:10px;top:10px;z-index:10;background:rgba(0,0,0,0.7);border:0;color:#fff;">✕</button>
@@ -129,44 +129,51 @@
 
   <div id="toast" class="toast hidden"></div>
 
+  <!-- SCRIPT GLOBAL UNTUK THEME & EVENT LISTENER -->
   <script>
-    // --- FITUR DARK / LIGHT MODE ---
-    function initTheme() {
-      const savedTheme = localStorage.getItem('wvh_theme') || 'light';
-      document.documentElement.setAttribute('data-theme', savedTheme);
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('wvh_theme', theme);
       const btn = document.getElementById('themeToggleBtn');
-      if (btn) btn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+      if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
     }
 
     function toggleTheme() {
-      const currentTheme = document.documentElement.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', newTheme);
-      localStorage.setItem('wvh_theme', newTheme);
-      const btn = document.getElementById('themeToggleBtn');
-      if (btn) btn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      initTheme();
+      // Inisialisasi tema dari LocalStorage
+      const saved = localStorage.getItem('wvh_theme') || 'light';
+      applyTheme(saved);
+
+      // Pasang event listener ke tombol tema secara aman
+      const themeBtn = document.getElementById('themeToggleBtn');
+      if (themeBtn) {
+        themeBtn.addEventListener('click', toggleTheme);
+      }
     });
   </script>
 
   <!-- Script Utama Publik -->
   <script src="./public-app.js?v=1"></script>
 
-  <!-- Script Khusus Integrasi Google Login ke Modal -->
+  <!-- Script Khusus Integrasi Google Login -->
   <script type="module">
     import { loginWithGoogle } from './auth-app.js';
     
-    const btnGoogle = document.getElementById('btnGoogleLogin');
-    if (btnGoogle) {
-      btnGoogle.addEventListener('click', () => {
-        btnGoogle.textContent = "Menghubungkan...";
-        btnGoogle.disabled = true;
-        loginWithGoogle();
-      });
-    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const btnGoogle = document.getElementById('btnGoogleLogin');
+      if (btnGoogle) {
+        btnGoogle.addEventListener('click', () => {
+          btnGoogle.textContent = "Menghubungkan...";
+          btnGoogle.disabled = true;
+          loginWithGoogle();
+        });
+      }
+    });
   </script>
 </body>
 </html>

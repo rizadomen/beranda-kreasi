@@ -28,7 +28,7 @@
 
   async function initPublicPortal() {
     try {
-      // 1. Ambil pengaturan banner & popup dengan aman (mendukung format object/array)
+      // 1. Ambil pengaturan banner & popup
       const setRes = await api('getSettings').catch(() => ({}));
       let settingsMap = {};
       const rawSettings = setRes.settings || setRes.data || {};
@@ -45,7 +45,6 @@
         $('heroBanner').style.backgroundPosition = 'center';
       }
 
-      // Tampilkan popup 4:5 jika diatur dan belum pernah muncul di sesi ini
       if (settingsMap.PORTAL_POPUP_URL && $('popupImage') && !sessionStorage.getItem('popupShown')) {
         $('popupImage').src = settingsMap.PORTAL_POPUP_URL;
         $('promoPopup').classList.remove('hidden');
@@ -140,7 +139,6 @@
       });
     }
 
-    // Gate: jika pengunjung klik detail venue, munculkan pop-up suruh daftar/login
     document.body.addEventListener('click', (e) => {
       if (e.target.classList.contains('trigger-gate')) {
         gateModal.classList.remove('hidden');
@@ -157,7 +155,6 @@
       });
     }
 
-    // Tombol close modal
     document.querySelectorAll('[data-close-modal]').forEach(btn => {
       btn.addEventListener('click', () => {
         const modal = $(btn.dataset.closeModal);
@@ -169,41 +166,62 @@
       $('closePopup').addEventListener('click', () => promoPopup.classList.add('hidden'));
     }
 
-    // Submit Pendaftaran Klien Baru
+    // Submit Pendaftaran Klien Baru (dengan indikator loading)
     if ($('btnSubmitRegister')) {
       $('btnSubmitRegister').addEventListener('click', async () => {
+        const btn = $('btnSubmitRegister');
         const name = $('regName').value.trim();
         const email = $('regEmail').value.trim();
         if (!name || !email) return toast('Nama dan Email wajib diisi!', true);
+
+        const origText = btn.textContent;
+        btn.textContent = 'Memproses pendaftaran...';
+        btn.disabled = true;
+
         try {
           const res = await api('createClient', { name, email });
           if (res.status !== 'BERHASIL') throw new Error(res.message);
           toast('Akun berhasil dibuat! Silakan masuk.');
+          $('regName').value = '';
+          $('regEmail').value = '';
+          $('loginEmail').value = email; // Otomatis isikan ke form login
           $('registerFormView').classList.add('hidden');
           $('loginFormView').classList.remove('hidden');
           $('authModalTitle').textContent = 'Masuk ke Portal Klien';
         } catch (err) {
           toast(err.message, true);
+        } finally {
+          btn.textContent = origText;
+          btn.disabled = false;
         }
       });
     }
 
-    // Submit Login Klien
+    // Submit Login Klien (dengan indikator loading)
     if ($('btnSubmitLogin')) {
       $('btnSubmitLogin').addEventListener('click', async () => {
+        const btn = $('btnSubmitLogin');
         const email = $('loginEmail').value.trim();
         if (!email) return toast('Masukkan email terdaftar Anda!', true);
+
+        const origText = btn.textContent;
+        btn.textContent = 'Memeriksa akun...';
+        btn.disabled = true;
+
         try {
           const res = await api('clientLogin', { email });
           if (res.status !== 'BERHASIL') throw new Error(res.message || 'Email tidak ditemukan.');
           
+          // Pakai key 'wvh_client' agar seragam
           localStorage.setItem('wvh_client', JSON.stringify(res.client));
           toast('Login berhasil! Membuka portal...');
           setTimeout(() => {
             window.location.href = './client.html';
-          }, 1000);
+          }, 800);
         } catch (err) {
           toast(err.message, true);
+          btn.textContent = origText;
+          btn.disabled = false;
         }
       });
     }

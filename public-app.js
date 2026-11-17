@@ -99,62 +99,40 @@
   document.addEventListener('DOMContentLoaded', () => {
     initPublicPortal();
 
-    const authModal = $('authModal');
     const gateModal = $('gateModal');
     const promoPopup = $('promoPopup');
 
+    // TOMBOL MASUK DI NAVBAR -> Alihkan langsung ke auth.html (mode login)
     if ($('btnOpenLogin')) {
-      $('btnOpenLogin').addEventListener('click', () => {
-        $('authModalTitle').textContent = 'Masuk ke Portal Klien';
-        $('registerFormView').classList.add('hidden');
-        $('loginFormView').classList.remove('hidden');
-        authModal.classList.remove('hidden');
+      $('btnOpenLogin').addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = './auth.html?mode=login';
       });
     }
 
+    // TOMBOL DAFTAR DI NAVBAR -> Alihkan langsung ke auth.html (mode register)
     if ($('btnOpenRegister')) {
-      $('btnOpenRegister').addEventListener('click', () => {
-        $('authModalTitle').textContent = 'Daftar Akun Baru';
-        $('loginFormView').classList.add('hidden');
-        $('registerFormView').classList.remove('hidden');
-        authModal.classList.remove('hidden');
-      });
-    }
-
-    if ($('switchToLogin')) {
-      $('switchToLogin').addEventListener('click', (e) => {
+      $('btnOpenRegister').addEventListener('click', (e) => {
         e.preventDefault();
-        $('authModalTitle').textContent = 'Masuk ke Portal Klien';
-        $('registerFormView').classList.add('hidden');
-        $('loginFormView').classList.remove('hidden');
+        window.location.href = './auth.html?mode=register';
       });
     }
 
-    if ($('switchToRegister')) {
-      $('switchToRegister').addEventListener('click', (e) => {
-        e.preventDefault();
-        $('authModalTitle').textContent = 'Daftar Akun Baru';
-        $('loginFormView').classList.add('hidden');
-        $('registerFormView').classList.remove('hidden');
-      });
-    }
-
+    // KLIK TOMBOL "LIHAT DETAIL" PADA VENUE -> Munculkan modal gembok
     document.body.addEventListener('click', (e) => {
       if (e.target.classList.contains('trigger-gate')) {
         gateModal.classList.remove('hidden');
       }
     });
 
+    // TOMBOL "DAFTAR / MASUK AKUN" DI DALAM MODAL GEMBOK -> Alihkan ke auth.html
     if ($('btnTriggerAuthFromGate')) {
       $('btnTriggerAuthFromGate').addEventListener('click', () => {
-        gateModal.classList.add('hidden');
-        $('authModalTitle').textContent = 'Daftar Akun Baru';
-        $('loginFormView').classList.add('hidden');
-        $('registerFormView').classList.remove('hidden');
-        authModal.classList.remove('hidden');
+        window.location.href = './auth.html?mode=register';
       });
     }
 
+    // TOMBOL BATAL / TUTUP MODAL
     document.querySelectorAll('[data-close-modal]').forEach(btn => {
       btn.addEventListener('click', () => {
         const modal = $(btn.dataset.closeModal);
@@ -164,66 +142,6 @@
 
     if ($('closePopup')) {
       $('closePopup').addEventListener('click', () => promoPopup.classList.add('hidden'));
-    }
-
-    // Submit Pendaftaran Klien Baru (dengan indikator loading)
-    if ($('btnSubmitRegister')) {
-      $('btnSubmitRegister').addEventListener('click', async () => {
-        const btn = $('btnSubmitRegister');
-        const name = $('regName').value.trim();
-        const email = $('regEmail').value.trim();
-        if (!name || !email) return toast('Nama dan Email wajib diisi!', true);
-
-        const origText = btn.textContent;
-        btn.textContent = 'Memproses pendaftaran...';
-        btn.disabled = true;
-
-        try {
-          const res = await api('createClient', { name, email });
-          if (res.status !== 'BERHASIL') throw new Error(res.message);
-          toast('Akun berhasil dibuat! Silakan masuk.');
-          $('regName').value = '';
-          $('regEmail').value = '';
-          $('loginEmail').value = email; // Otomatis isikan ke form login
-          $('registerFormView').classList.add('hidden');
-          $('loginFormView').classList.remove('hidden');
-          $('authModalTitle').textContent = 'Masuk ke Portal Klien';
-        } catch (err) {
-          toast(err.message, true);
-        } finally {
-          btn.textContent = origText;
-          btn.disabled = false;
-        }
-      });
-    }
-
-    // Submit Login Klien (dengan indikator loading)
-    if ($('btnSubmitLogin')) {
-      $('btnSubmitLogin').addEventListener('click', async () => {
-        const btn = $('btnSubmitLogin');
-        const email = $('loginEmail').value.trim();
-        if (!email) return toast('Masukkan email terdaftar Anda!', true);
-
-        const origText = btn.textContent;
-        btn.textContent = 'Memeriksa akun...';
-        btn.disabled = true;
-
-        try {
-          const res = await api('clientLogin', { email });
-          if (res.status !== 'BERHASIL') throw new Error(res.message || 'Email tidak ditemukan.');
-          
-          // Pakai key 'wvh_client' agar seragam
-          localStorage.setItem('wvh_client', JSON.stringify(res.client));
-          toast('Login berhasil! Membuka portal...');
-          setTimeout(() => {
-            window.location.href = './client.html';
-          }, 800);
-        } catch (err) {
-          toast(err.message, true);
-          btn.textContent = origText;
-          btn.disabled = false;
-        }
-      });
     }
   });
 })();

@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #8b5cf6; /* Disesuaikan dengan warna ungu lembut tema pop-up */
+      --primary: #8b5cf6;
       --primary-dark: #7c3aed;
       --bg-color: #f1f5f9;
       --card-bg: #ffffff;
@@ -196,6 +196,7 @@
     let currentClient = null;
     let venueData = null;
     let savedVenueIds = [];
+    let globalAdminPhone = '6281234567890'; // Default fallback
 
     function toast(msg, isErr = false) {
       const t = $('toast');
@@ -244,13 +245,26 @@
       }
 
       try {
-        const res = await api('listVenues');
-        const venues = res.venues || res.data || [];
+        const [resVenues, resSettings] = await Promise.all([
+          api('listVenues'),
+          api('getSettings').catch(() => ({}))
+        ]);
+
+        const venues = resVenues.venues || resVenues.data || [];
         venueData = venues.find(v => (v.ID_VENUE || v.id_venue) === venueId);
 
         if (!venueData) {
           $('leftInfoContainer').innerHTML = `<div style="text-align:center; padding:40px; font-weight:700; color:var(--text-muted);">Venue tidak ditemukan.</div>`;
           return;
+        }
+
+        // Ambil nomor WA admin dari pengaturan web (Admin Panel)
+        const settingsData = resSettings.settings || resSettings.data || resSettings;
+        if (settingsData) {
+          const adminWa = settingsData.ADMIN_WA || settingsData.admin_wa || settingsData.WHATSAPP_ADMIN || settingsData.whatsapp_admin;
+          if (adminWa) {
+            globalAdminPhone = String(adminWa).replace(/\D/g, '').replace(/^0/, '62');
+          }
         }
 
         let mediaList = [];
@@ -395,14 +409,17 @@
         toast('Data berhasil dicatat ke CRM/Spreadsheet!');
         closeTanyaModal();
 
-        // 2. Buka WhatsApp Admin / Venue
-        let waTarget = String(venueData.KONTAK || '').replace(/\D/g, '').replace(/^0/, '62');
-        if (!waTarget || waTarget.length < 5) waTarget = '6281234567890'; // Fallback admin
+        // 2. Buka WhatsApp Admin pusat (diatur via pengaturan admin) atau nomor venue
+        let targetWa = globalAdminPhone;
+        if (venueData && venueData.KONTAK && String(venueData.KONTAK).trim().length > 5) {
+          let cleanKontak = String(venueData.KONTAK).replace(/\D/g, '').replace(/^0/, '62');
+          if (cleanKontak.length >= 10) targetWa = cleanKontak;
+        }
 
         const waText = encodeURIComponent(`Halo Admin,\n\nNama: ${name}\nNo WA: ${whatsapp}\nVenue: ${venueName}\nTanggal: ${date || '-'}\nTamu: ${guests || '-'}\nPertanyaan: ${notes}`);
         
         setTimeout(() => {
-          window.open(`https://wa.me/${waTarget}?text=${waText}`, '_blank');
+          window.open(`https://wa.me/${targetWa}?text=${waText}`, '_blank');
         }, 800);
 
       } catch (e) {
@@ -410,11 +427,18 @@
       }
     }
 
-    function openAdminWhatsApp(kontak) {
-      let wa = String(kontak || '').replace(/\D/g, '').replace(/^0/, '62');
-      if (!wa || wa.length < 5) wa = '6281234567890';
-      const text = encodeURIComponent('Halo Admin, saya ingin bertanya seputar ketersediaan venue ' + (venueData?.NAMA_VENUE || ''));
-      window.open(`https://wa.me/${wa}?text=${text}`, '_blank');
+    function openAdminWhatsApp(kontakVenue) {
+      let targetWa = globalAdminPhone;
+      
+      if (kontakVenue && String(kontakVenue).trim().length > 5) {
+        let cleanKontak = String(kontakVenue).replace(/\D/g, '').replace(/^0/, '62');
+        if (cleanKontak.length >= 10) {
+          targetWa = cleanKontak;
+        }
+      }
+
+      const text = encodeURIComponent('Halo Admin, saya ingin bertanya seputar ketersediaan dan informasi detail venue ' + (venueData?.NAMA_VENUE || ''));
+      window.open(`https://wa.me/${targetWa}?text=${text}`, '_blank');
     }
 
     document.addEventListener('DOMContentLoaded', () => {

@@ -4,12 +4,12 @@ import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChang
 
 // 1. ISI DENGAN FIREBASE CONFIG LU BRAY
 const firebaseConfig = {
-  apiKey: "API_KEY_LU",
-  authDomain: "PROJECT_LU.firebaseapp.com",
-  projectId: "PROJECT_LU",
-  storageBucket: "PROJECT_LU.appspot.com",
-  messagingSenderId: "SENDER_ID_LU",
-  appId: "APP_ID_LU"
+  apiKey: "AIzaSyD6ipCQh1s9ReTxAbnMNeowUp18cfJgCkI",
+  authDomain: "beranda-kreasi-wvh.firebaseapp.com",
+  projectId: "beranda-kreasi-wvh",
+  storageBucket: "beranda-kreasi-wvh.firebasestorage.app",
+  messagingSenderId: "424058424980",
+  appId: "G-ZM1ERK2DLP"
 };
 
 // Inisialisasi Firebase & Auth

@@ -268,27 +268,19 @@
         const res = await api('listVenues');
         allVenues = res.venues || res.data || [];
         
-        // 1. Populate Dropdown Kota
+        // 1. Ambil pilihan Kota murni dari kolom KOTA
         const kotaSet = [...new Set(allVenues.map(v => v.KOTA || v.kota).filter(Boolean))];
         const kotaSelect = $('filterKota');
         if (kotaSelect) {
           kotaSelect.innerHTML = '<option value="">Semua Kota</option>' + kotaSet.map(k => `<option value="${k}">${k}</option>`).join('');
         }
 
-        // 2. Ekstraksi Kecamatan secara otomatis dari Alamat (Mencari kata 'Kec' atau 'Kecamatan')
+        // 2. Ambil pilihan Kecamatan/Area (jika masih ingin dipakai sebagai filter tambahan)
         const kecamatanSet = new Set();
         allVenues.forEach(v => {
-          // Cek jika ada kolom khusus KECAMATAN, atau ambil dari ALAMAT
           let alamatLengkap = v.KECAMATAN || v.kecamatan || v.ALAMAT || v.alamat || '';
-          
-          // Regex untuk mencari kata yang diawali "Kec" atau "Kecamatan" diikuti nama wilayahnya
-          // Contoh menangkap: "Kec. Ciputat", "Kecamatan Pamulang", "Kec. Serpong"
           const match = alamatLengkap.match(/(?:kecamatan|kec\.?)\s+([a-zA-Z\s]+)(?:,|\.|$)/i);
-          
           if (match && match[1]) {
-            // Merapikan hasil (membersihkan spasi berlebih)
-            let namaKec = match[1].trim().split(' ')[0]; // Ambil kata pertama/dua setelah kec
-            // Atau kalau mau ambil utuh beberapa kata wilayahnya:
             let cleanKec = match[0].replace(/^(kecamatan|kec\.?)\s*/i, '').replace(/[,.]/g, '').trim();
             if (cleanKec) {
               kecamatanSet.add(cleanKec.charAt(0).toUpperCase() + cleanKec.slice(1).toLowerCase());
@@ -378,11 +370,21 @@
       const sortVal = $('sortPrice').value;
 
       let filtered = allVenues.filter(v => {
-        const textMatch = ((v.NAMA_VENUE || '') + ' ' + (v.KOTA || '') + ' ' + (v.KECAMATAN || '') + ' ' + (v.DESKRIPSI || '') + ' ' + (v.ALAMAT || '')).toLowerCase();
+        const textMatch = ((v.NAMA_VENUE || '') + ' ' + (v.DESKRIPSI || '') + ' ' + (v.ALAMAT || '')).toLowerCase();
+        
         if (keyword && !textMatch.includes(keyword)) return false;
-        if (kota && (v.KOTA || v.kota) !== kota) return false;
-        if (kecamatan && !textMatch.includes(kecamatan.toLowerCase())) return false;
-        if (jenis && (v.JENIS_VENUE || v.jenis_venue) !== jenis) return false;
+        
+        // Filter persis dari kolom KOTA
+        const venueKota = String(v.KOTA || v.kota || '').trim();
+        if (kota && venueKota !== kota) return false;
+
+        // Filter Kecamatan dari alamat (opsional jika dipilih)
+        if (kecamatan && !((v.ALAMAT || v.alamat || '')).toLowerCase().includes(kecamatan.toLowerCase())) return false;
+
+        // Filter persis dari kolom JENIS_VENUE
+        const venueJenis = String(v.JENIS_VENUE || v.jenis_venue || '').trim();
+        if (jenis && venueJenis !== jenis) return false;
+
         if (fitur && (v.FITUR_VENUE || v.fitur_venue) !== fitur) return false;
 
         let pAmount = 0;

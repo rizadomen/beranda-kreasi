@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard Klien — Wedding Venue Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./client-style.css?v=1">
+</head>
+<body>
+
+  <!-- HEADER KLIEN -->
+  <header class="client-header">
+    <div class="client-brand">
+      <div style="width:34px;height:34px;background:linear-gradient(135deg,var(--cyan),#2563eb);border-radius:8px;display:grid;place-items:center;font-weight:800;color:#fff;">W</div>
+      <div>
+        <strong>Wedding Venue Hub</strong>
+        <span>CLIENT PORTAL</span>
+      </div>
+    </div>
+    <button type="button" class="btn danger sm" id="btnLogout">Keluar Akun</button>
+  </header>
+
+  <!-- KONTEN UTAMA DASHBOARD -->
+  <main class="client-main">
+    <div class="welcome-card">
+      <span style="font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:0.1em;text-transform:uppercase;">Selamat Datang Kembali</span>
+      <h1 id="clientName">Memuat...</h1>
+      <p>Ini adalah pusat kendali akun Anda untuk memantau status pemesanan, jadwal survei venue, dan komunikasi eksklusif.</p>
+    </div>
+
+    <div class="section-box">
+      <h3>📋 Informasi Akun Klien</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>ID Klien</label>
+          <span id="clientId">-</span>
+        </div>
+        <div class="info-item">
+          <label>Email Terdaftar</label>
+          <span id="clientEmail">-</span>
+        </div>
+        <div class="info-item">
+          <label>Status Akun</label>
+          <span id="clientStatus" style="color:var(--success)">AKTIF</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-box" style="text-align:center;padding:36px;">
+      <h3 style="justify-content:center;">✨ Jelajahi Koleksi Venue</h3>
+      <p style="color:var(--muted);font-size:13px;margin:8px 0 20px 0;">Kembali ke halaman utama untuk melihat daftar lengkap venue pilihan atau hubungi admin via WhatsApp.</p>
+      <a href="./index.html" class="btn primary">Buka Beranda Publik</a>
+    </div>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="./client-app.js?v=1"></script>
+</body>
+</html>

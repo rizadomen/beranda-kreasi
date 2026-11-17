@@ -265,14 +265,14 @@
 
   <div id="toast" class="toast hidden"></div>
 
-  <!-- SCRIPT KLIEN INTERAKTIF -->
-  <script>
+ <script>
     const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxsyukFGT1DwBMZz80hNeHKpMyR0erEL-08t1Wz4HP8p2zQFuHecw7FU_bLL5ZD18Ts/exec';
     const $ = (id) => document.getElementById(id);
 
     let allVenues = [];
     let savedVenueIds = [];
     let currentClient = null;
+    let adminWhatsAppNumber = '6281234567890'; // Default fallback jika gagal memuat
 
     // --- FITUR DARK / LIGHT MODE ---
     function initTheme() {
@@ -339,6 +339,27 @@
         if (target) target.classList.remove('hidden');
       });
     });
+
+    // Ambil Pengaturan dari Backend (Termasuk ADMIN_WHATSAPP)
+    async function loadAppSettings() {
+      try {
+        const res = await api('getSettings');
+        if (res.status === 'BERHASIL' && res.settings) {
+          // Ambil dari kolom ADMIN_WHATSAPP di sheet Pengaturan
+          const waSetting = res.settings.ADMIN_WHATSAPP || res.settings.admin_whatsapp;
+          if (waSetting) {
+            // Bersihkan format nomor (ubah 08xx jadi 628xx jika perlu)
+            let cleanPhone = String(waSetting).replace(/[^0-9]/g, '');
+            if (cleanPhone.startsWith('0')) {
+              cleanPhone = '62' + cleanPhone.slice(1);
+            }
+            adminWhatsAppNumber = cleanPhone;
+          }
+        }
+      } catch (e) {
+        console.warn('Gagal memuat pengaturan admin WA, menggunakan default.', e);
+      }
+    }
 
     async function loadVenuesData() {
       try {
@@ -440,7 +461,6 @@
       const alreadyOpened = viewedVenues.includes(venueId);
 
       if (!alreadyOpened) {
-        // Jika kuota sudah mencapai 3 dan venue ini BELUM PERNAH dibuka -> Tampilkan Modal Paywall
         if (viewedVenues.length >= 3) {
           const modal = $('paywallModal');
           if (modal) {
@@ -449,12 +469,10 @@
           }
           return;
         }
-        // Jika belum 3, masukkan ke riwayat
         viewedVenues.push(venueId);
         localStorage.setItem(storageKey, JSON.stringify(viewedVenues));
       }
 
-      // Lanjut buka halaman detail venue
       window.location.href = `./venue-detail.html?id=${venueId}`;
     };
 
@@ -472,11 +490,13 @@
       renderVenuesList(allVenues);
     };
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       initTheme();
       checkClientSession();
 
-      // PASTIKAN MODAL TERTUTUP SEMPURNA SAAT HALAMAN DIMUAT
+      // Muat nomor WhatsApp admin dari Sheet Pengaturan database
+      await loadAppSettings();
+
       const paywallModal = $('paywallModal');
       if (paywallModal) {
         paywallModal.style.display = 'none';
@@ -498,15 +518,14 @@
         setTimeout(() => { window.location.href = './index.html'; }, 800);
       });
 
-      // Tombol WhatsApp di dalam Modal Paywall
+      // Tombol WhatsApp di dalam Modal Paywall (Menggunakan adminWhatsAppNumber dari Sheet Pengaturan)
       const btnWa = $('btnConfirmSubscribeWhatsApp');
       if (btnWa) {
         btnWa.addEventListener('click', (e) => {
           e.preventDefault();
-          const adminPhone = "6281234567890"; // Ganti dengan nomor WhatsApp Admin lu
           const clientData = currentClient || {};
           const msg = `Halo Admin WVH, kuota 3 venue gratis saya sudah habis. Saya ingin konfirmasi pembayaran untuk upgrade akun ke SUBSCRIBE.\n\nNama: ${clientData.NAMA || clientData.nama || '-'}\nEmail: ${clientData.EMAIL || clientData.email || '-'}`;
-          window.open(`https://wa.me/${adminPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+          window.open(`https://wa.me/${adminWhatsAppNumber}?text=${encodeURIComponent(msg)}`, '_blank');
         });
       }
 
@@ -523,6 +542,7 @@
         });
       }
     });
+  </script>
   </script>
 </body>
 </html>

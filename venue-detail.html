@@ -28,43 +28,52 @@
     .client-brand div strong { display: block; font-size: 15px; color: var(--text-main); }
     .client-brand div span { font-size: 11px; font-weight: 700; color: var(--primary); letter-spacing: 0.05em; }
 
-    /* Main Container */
-    .detail-main { max-width: 1000px; width: 100%; margin: 30px auto; padding: 0 20px; flex-grow: 1; }
+    /* Layout Utama 2 Kolom */
+    .detail-container { max-width: 1200px; width: 100%; margin: 30px auto; padding: 0 20px; display: flex; flex-direction: column; gap: 20px; flex-grow: 1; }
+    .top-nav-bar { display: flex; justify-content: space-between; align-items: center; }
+    .back-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: var(--text-main); background: #fff; border: 1px solid var(--border); padding: 8px 14px; border-radius: 8px; text-decoration: none; cursor: pointer; transition: background 0.2s; }
+    .back-btn:hover { background: #f8fafc; }
+
+    .two-column-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start; }
+    @media (max-width: 900px) { .two-column-layout { grid-template-columns: 1fr; } }
+
+    /* Card Box */
+    .card-box { background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.04); padding: 28px; position: relative; }
+
+    /* Cover Hero */
+    .venue-cover { width: 100%; height: 260px; background: #e2e8f0; border-radius: 10px; background-size: cover; background-position: center; margin-bottom: 20px; position: relative; display: grid; place-items: center; color: var(--text-muted); font-weight: 700; font-size: 14px; }
     
-    .back-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: var(--primary); text-decoration: none; margin-bottom: 20px; cursor: pointer; }
-    .back-btn:hover { text-decoration: underline; }
+    .venue-title { font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 6px; }
+    .venue-address { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 14px; line-height: 1.4; }
+    .venue-desc { font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
 
-    .detail-card { background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 32px; overflow: hidden; }
-    .venue-main-title { font-size: 26px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
-    .venue-main-location { font-size: 15px; font-weight: 600; color: var(--text-muted); margin-bottom: 20px; display: flex; align-items: center; gap: 6px; }
+    /* Kotak Informasi Kecil (Grid 2x2 seperti gambar) */
+    .info-grid-boxes { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+    .info-box-item { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; background: #fff; }
+    .info-box-item label { display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+    .info-box-item span { display: block; font-size: 14px; font-weight: 800; color: var(--text-main); }
+
+    /* Badge & Tombol Aksi */
+    .badge-saved { position: absolute; top: 28px; right: 28px; background: #fee2e2; color: #dc2626; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; display: flex; align-items: center; gap: 4px; }
     
-    /* Hero Cover */
-    .venue-hero-cover { width: 100%; height: 380px; background: #cbd5e1; border-radius: var(--radius); background-size: cover; background-position: center; margin-bottom: 24px; position: relative; }
-
-    /* Info Grid */
-    .info-grid-detail { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 24px; padding: 20px; background: #f8fafc; border-radius: 10px; border: 1px solid var(--border); }
-    .info-box label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 4px; }
-    .info-box span { font-size: 16px; font-weight: 800; color: var(--text-main); }
-
-    .section-title { font-size: 18px; font-weight: 800; color: var(--text-main); margin: 24px 0 12px 0; }
-    .description-text { font-size: 15px; font-weight: 600; color: var(--text-muted); line-height: 1.6; }
-
-    /* Gallery Grid */
-    .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 12px; }
-    .gallery-grid img { width: 100%; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; transition: transform 0.2s; }
-    .gallery-grid img:hover { transform: scale(1.03); }
-
-    /* Form Survei Box */
-    .survey-box { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-top: 32px; }
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; font-size: 12px; font-weight: 800; margin-bottom: 6px; color: var(--text-main); text-transform: uppercase; }
-    .form-group input, .form-group textarea { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 600; background: #fff; outline: none; }
-    .form-group input:focus, .form-group textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15); }
-
-    /* Buttons */
-    .btn { padding: 12px 20px; font-size: 14px; font-weight: 700; border-radius: 8px; border: none; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; transition: background 0.2s; }
-    .btn.primary { background: var(--primary); color: #fff; width: 100%; }
+    .action-buttons { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-top: 20px; }
+    .btn { padding: 12px 18px; font-size: 14px; font-weight: 700; border-radius: 8px; border: none; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; transition: background 0.2s; }
+    .btn.primary { background: var(--primary); color: #fff; }
     .btn.primary:hover { background: var(--primary-dark); }
+    .btn.secondary { background: #e2e8f0; color: var(--text-main); }
+    .btn.secondary:hover { background: #cbd5e1; }
+    .btn.outline { background: #fff; border: 1px solid var(--border); color: var(--text-main); width: 100%; margin-bottom: 16px; }
+    .btn.outline:hover { background: #f8fafc; }
+
+    /* Kolom Kanan: Galeri */
+    .gallery-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    .gallery-header h3 { font-size: 16px; font-weight: 800; color: var(--text-main); }
+    .gallery-header span { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+    
+    .gallery-grid-right { display: grid; grid-template-columns: 1fr; gap: 12px; max-height: 600px; overflow-y: auto; }
+    .gallery-thumb-item { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; transition: transform 0.2s; }
+    .gallery-thumb-item:hover { transform: scale(1.02); }
+    .empty-gallery { border: 2px dashed var(--border); border-radius: 8px; padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 13px; font-weight: 600; }
 
     /* Toast */
     .toast { position: fixed; bottom: 24px; right: 24px; background: #0f172a; color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 700; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.15); z-index: 2000; }
@@ -80,30 +89,49 @@
       <div class="client-brand-icon">W</div>
       <div>
         <strong>Wedding Venue Hub</strong>
-        <span>DETAIL VENUE</span>
+        <span>VENUE DETAIL</span>
       </div>
     </div>
     <span id="welcomeUser" style="font-size:14px; font-weight:800; color:var(--text-main);">Halo, Klien</span>
   </header>
 
-  <!-- KONTEN UTAMA -->
-  <main class="detail-main">
-    <a href="./client.html" class="back-btn">← Kembali ke Katalog</a>
+  <!-- KONTEN UTAMA 2 KOLOM -->
+  <main class="detail-container">
+    <div class="top-nav-bar">
+      <a href="./client.html" class="back-btn">← Kembali ke semua venue</a>
+    </div>
 
-    <div class="detail-card" id="detailCardContainer">
-      <div style="text-align:center; padding:60px; font-weight:700; color:var(--text-muted);">Memuat informasi venue...</div>
+    <div class="two-column-layout">
+      
+      <!-- KOLOM KIRI: INFO VENUE UTAMA -->
+      <div class="card-box" id="leftInfoContainer">
+        <div style="text-align:center; padding:40px; font-weight:700; color:var(--text-muted);">Memuat informasi venue...</div>
+      </div>
+
+      <!-- KOLOM KANAN: GALERI FOTO -->
+      <div class="card-box">
+        <div class="gallery-header">
+          <h3>Galeri venue</h3>
+          <span id="galleryCount">0 foto</span>
+        </div>
+        <div id="rightGalleryContainer" class="gallery-grid-right">
+          <div class="empty-gallery">Belum ada foto galeri untuk venue ini.</div>
+        </div>
+      </div>
+
     </div>
   </main>
 
   <div id="toast" class="toast hidden"></div>
 
-  <!-- SCRIPT DETAIL VENUE -->
+  <!-- SCRIPT -->
   <script>
     const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxsyukFGT1DwBMZz80hNeHKpMyR0erEL-08t1Wz4HP8p2zQFuHecw7FU_bLL5ZD18Ts/exec';
     const $ = (id) => document.getElementById(id);
 
     let currentClient = null;
     let venueData = null;
+    let savedVenueIds = [];
 
     function toast(msg, isErr = false) {
       const t = $('toast');
@@ -146,42 +174,46 @@
         return;
       }
 
+      const savedRaw = localStorage.getItem('wvh_saved_' + (currentClient?.EMAIL || 'user'));
+      if (savedRaw) {
+        try { savedVenueIds = JSON.parse(savedRaw); } catch(e){}
+      }
+
       try {
-        // Ambil semua venue untuk dicari ID-nya
         const res = await api('listVenues');
         const venues = res.venues || res.data || [];
         venueData = venues.find(v => (v.ID_VENUE || v.id_venue) === venueId);
 
         if (!venueData) {
-          $('detailCardContainer').innerHTML = `<div style="text-align:center; padding:40px; font-weight:700; color:var(--text-muted);">Venue tidak ditemukan.</div>`;
+          $('leftInfoContainer').innerHTML = `<div style="text-align:center; padding:40px; font-weight:700; color:var(--text-muted);">Venue tidak ditemukan.</div>`;
           return;
         }
 
-        // Ambil galeri foto
         let mediaList = [];
         try {
           const mediaRes = await api('listMedia', { venueId });
           mediaList = mediaRes.media || [];
         } catch(e){}
 
-        renderVenuePage(venueData, mediaList);
+        renderPage(venueData, mediaList);
       } catch (e) {
         toast('Gagal memuat detail: ' + e.message, true);
       }
     }
 
-    function renderVenuePage(v, mediaList) {
+    function renderPage(v, mediaList) {
       const name = v.NAMA_VENUE || v.nama_venue || 'Venue Pernikahan';
       const kota = v.KOTA || v.kota || '-';
-      const alamat = v.ALAMAT || v.alamat || '-';
-      const jenis = v.JENIS_VENUE || v.jenis_venue || 'Wedding Hall';
-      const fitur = v.FITUR_VENUE || v.fitur_venue || 'Indoor';
+      const alamat = v.ALAMAT || v.alamat || 'Alamat belum tersedia';
       const kapasitas = v.KAPASITAS || v.kapasitas || '-';
+      const kontak = v.KONTAK || v.kontak || '-';
       const fasilitas = v.FASILITAS || v.fasilitas || '-';
-      const deskripsi = v.DESKRIPSI || v.deskripsi || 'Tidak ada deskripsi.';
+      const deskripsi = v.DESKRIPSI || v.deskripsi || 'Belum ada deskripsi venue.';
+      const mapsUrl = v.GOOGLE_MAPS_URL || v.google_maps_url || '';
+      const id = v.ID_VENUE || v.id_venue;
 
-      let priceStr = 'Hubungi Admin';
-      let pNote = 'Standar';
+      let priceStr = 'Harga belum tersedia';
+      let pNote = '';
       try {
         const pObj = JSON.parse(v.HARGA_INFO || v.harga_info || '{}');
         if (pObj.amount) {
@@ -190,93 +222,90 @@
         if (pObj.note) pNote = pObj.note;
       } catch(err){}
 
-      let coverUrl = 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&q=80';
+      let coverUrl = '';
       if (v.cover && v.cover.url) {
         coverUrl = v.cover.url;
       }
 
-      let galleryHtml = `<p style="font-size:13px; color:var(--text-muted); font-weight:600;">Belum ada galeri foto tambahan.</p>`;
-      if (mediaList.length > 0) {
-        galleryHtml = `
-          <div class="gallery-grid">
-            ${mediaList.map(m => `<img src="${m.URL_TAMPIL || m.url_tampil}" alt="Foto Venue" onclick="window.open('${m.URL_TAMPIL || m.url_tampil}', '_blank')">`).join('')}
-          </div>
-          <p style="font-size:11px; color:var(--text-muted); margin-top:6px;">* Klik foto untuk memperbesar dalam tab baru.</p>
-        `;
-      }
+      const isSaved = savedVenueIds.includes(id);
 
-      const container = $('detailCardContainer');
-      container.innerHTML = `
-        <h1 class="venue-main-title">${name}</h1>
-        <div class="venue-main-location">📍 ${alamat}, ${kota}</div>
+      // Render Sisi Kiri
+      $('leftInfoContainer').innerHTML = `
+        ${isSaved ? '<div class="badge-saved">❤️ Tersimpan</div>' : ''}
         
-        <div class="venue-hero-cover" style="background-image: url('${coverUrl}')"></div>
+        <div class="venue-cover" ${coverUrl ? `style="background-image: url('${coverUrl}')"` : ''}>
+          ${!coverUrl ? 'Foto utama belum tersedia' : ''}
+        </div>
 
-        <div class="info-grid-detail">
-          <div class="info-box">
-            <label>Jenis Venue</label>
-            <span>${jenis}</span>
+        <div class="venue-title">${name}</div>
+        <div class="venue-address">${alamat}</div>
+        <div class="venue-desc">${deskripsi}</div>
+
+        <div class="info-grid-boxes">
+          <div class="info-box-item">
+            <label>Kota</label>
+            <span>${kota}</span>
           </div>
-          <div class="info-box">
-            <label>Fitur Area</label>
-            <span>${fitur}</span>
+          <div class="info-box-item">
+            <label>Kapasitas</label>
+            <span>${kapasitas}</span>
           </div>
-          <div class="info-box">
-            <label>Kapasitas Tamu</label>
-            <span>${kapasitas} Orang</span>
+          <div class="info-box-item">
+            <label>Harga paket</label>
+            <span style="color:var(--primary);">${priceStr}</span>
+            <span style="font-size:11px; font-weight:600; color:var(--text-muted);">${pNote}</span>
           </div>
-          <div class="info-box">
-            <label>Estimasi Harga</label>
-            <span style="color:#0284c7;">${priceStr}</span>
+          <div class="info-box-item">
+            <label>Kontak</label>
+            <span>${kontak}</span>
+          </div>
+          <div class="info-box-item" style="grid-column: span 2;">
+            <label>Fasilitas</label>
+            <span>${fasilitas}</span>
           </div>
         </div>
 
-        <h3 class="section-title">✨ Fasilitas Utama</h3>
-        <p class="description-text">${fasilitas}</p>
+        ${mapsUrl ? `<a href="${mapsUrl}" target="_blank" class="btn outline">Lihat lokasi di Maps</a>` : ''}
 
-        <h3 class="section-title">📖 Tentang Venue Ini</h3>
-        <p class="description-text">${deskripsi}</p>
-
-        <h3 class="section-title">📸 Galeri Foto Lengkap</h3>
-        ${galleryHtml}
-
-        <div class="survey-box">
-          <h3 style="font-size:18px; font-weight:800; margin-bottom:6px;">📅 Jadwalkan Survei atau Tanya Admin</h3>
-          <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px; font-weight:600;">Isi form di bawah ini untuk memesan jadwal kunjungan survei venue langsung dengan tim kami.</p>
-          
-          <div class="form-group">
-            <label>Nama Lengkap</label>
-            <input type="text" id="leadName" value="${currentClient.NAMA || currentClient.nama || ''}" placeholder="Nama Anda">
-          </div>
-          <div class="form-group">
-            <label>Nomor WhatsApp</label>
-            <input type="text" id="leadWa" placeholder="Contoh: 08123456789">
-          </div>
-          <div class="form-group">
-            <label>Catatan / Tanggal Rencana Survei</label>
-            <textarea id="leadMsg" placeholder="Contoh: Rencana survei tanggal 25 bulan depan jam 10 pagi..."></textarea>
-          </div>
-          <button type="button" class="btn primary" onclick="submitLead()">Kirim Permintaan ke Admin</button>
+        <div class="action-buttons">
+          <button type="button" class="btn primary" onclick="submitLeadQuick()">Tanya Venue Ini</button>
+          <button type="button" class="btn secondary" onclick="openAdminWhatsApp('${kontak}')">Hubungi Admin</button>
         </div>
       `;
+
+      // Render Sisi Kanan (Galeri)
+      const rightGallery = $('rightGalleryContainer');
+      $('galleryCount').textContent = mediaList.length + ' foto';
+
+      if (mediaList.length > 0) {
+        rightGallery.innerHTML = mediaList.map(m => `
+          <img src="${m.URL_TAMPIL || m.url_tampil}" class="gallery-thumb-item" alt="Foto Galeri" onclick="window.open('${m.URL_TAMPIL || m.url_tampil}', '_blank')">
+        `).join('');
+      } else {
+        rightGallery.innerHTML = `<div class="empty-gallery">Belum ada foto galeri untuk venue ini.</div>`;
+      }
     }
 
-    async function submitLead() {
-      const name = $('leadName').value.trim();
-      const whatsapp = $('leadWa').value.trim();
-      const message = $('leadMsg').value.trim();
+    async function submitLeadQuick() {
       const venueId = venueData ? (venueData.ID_VENUE || venueData.id_venue) : '';
-
-      if (!name || !whatsapp) return toast('Nama dan WhatsApp wajib diisi!', true);
+      const name = currentClient.NAMA || currentClient.nama || 'Klien';
+      const whatsapp = currentClient.EMAIL || '-';
+      const message = 'Halo, saya tertarik dengan venue ' + (venueData?.NAMA_VENUE || '') + ' dan ingin menjadwalkan survei.';
 
       try {
         const res = await api('createLead', { name, whatsapp, venueId, message });
         if (res.status !== 'BERHASIL') throw new Error(res.message);
-        toast('Permintaan survei berhasil dikirim ke Admin!');
-        $('leadMsg').value = '';
+        toast('Permintaan berhasil dikirim ke Admin!');
       } catch (e) {
         toast(e.message, true);
       }
+    }
+
+    function openAdminWhatsApp(kontak) {
+      let wa = String(kontak || '').replace(/\D/g, '').replace(/^0/, '62');
+      if (!wa || wa.length < 5) wa = '6281234567890'; // Default fallback
+      const text = encodeURIComponent('Halo Admin, saya ingin bertanya seputar ketersediaan venue ' + (venueData?.NAMA_VENUE || ''));
+      window.open(`https://wa.me/${wa}?text=${text}`, '_blank');
     }
 
     document.addEventListener('DOMContentLoaded', () => {

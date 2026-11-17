@@ -64,16 +64,6 @@
     .btn.danger:hover { background: #dc2626; }
     .btn.sm { padding: 8px 14px; font-size: 13px; }
 
-    /* Modal */
-    .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); display: grid; place-items: center; z-index: 1000; padding: 20px; }
-    .modal-backdrop.hidden { display: none; }
-    .modal-box { background: #fff; width: 100%; max-width: 680px; border-radius: 16px; padding: 28px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
-    
-    /* Gallery in Modal */
-    .modal-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 10px; }
-    .modal-gallery img { width: 100%; height: 85px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; transition: transform 0.2s; }
-    .modal-gallery img:hover { transform: scale(1.03); }
-
     /* Toast */
     .toast { position: fixed; bottom: 24px; right: 24px; background: #0f172a; color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 700; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.15); z-index: 2000; }
     .toast.hidden { opacity: 0; pointer-events: none; }
@@ -204,19 +194,6 @@
 
   </main>
 
-  <!-- MODAL DETAIL VENUE & GALERI -->
-  <div id="venueDetailModal" class="modal-backdrop hidden">
-    <div class="modal-box">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:14px;">
-        <h2 id="modalVenueName" style="font-size:20px; font-weight:800; color:var(--text-main);">Detail Venue</h2>
-        <button type="button" data-close-modal="venueDetailModal" style="background:#e2e8f0; border:none; padding:8px 14px; border-radius:8px; font-weight:700; cursor:pointer; color:var(--text-main);">✕ Tutup</button>
-      </div>
-      <div id="modalVenueContent">
-        <!-- Konten detail & galeri diisi dinamis -->
-      </div>
-    </div>
-  </div>
-
   <div id="toast" class="toast hidden"></div>
 
   <!-- SCRIPT KLIEN INTERAKTIF -->
@@ -337,7 +314,7 @@
               <div class="venue-title">${name}</div>
               <div class="venue-location">📍 ${kota}</div>
               <div class="venue-price">${priceStr}</div>
-              <button type="button" class="btn primary sm" onclick="openDetailModal('${id}')" style="width:100%;">Lihat Detail & Galeri</button>
+              <button type="button" class="btn primary sm" onclick="window.location.href='./venue-detail.html?id=${id}'" style="width:100%;">Lihat Detail & Galeri</button>
             </div>
           </div>
         `;
@@ -399,85 +376,6 @@
       }
     });
 
-    // Membuka Detail Venue sekaligus mengambil Galeri Foto dari backend
-    window.openDetailModal = async function(venueId) {
-      const v = allVenues.find(x => (x.ID_VENUE || x.id_venue) === venueId);
-      if (!v) return;
-
-      $('modalVenueName').textContent = v.NAMA_VENUE || v.nama_venue;
-      
-      let pInfo = {};
-      try { pInfo = JSON.parse(v.HARGA_INFO || v.harga_info || '{}'); } catch(e){}
-
-      // Tampilkan kerangka modal dulu sambil memuat galeri
-      $('modalVenueContent').innerHTML = `<div style="text-align:center; padding:30px; font-weight:700; color:var(--text-muted);">Memuat detail dan galeri foto...</div>`;
-      $('venueDetailModal').classList.remove('hidden');
-
-      // Ambil data galeri foto untuk venue ini
-      let mediaList = [];
-      try {
-        const mediaRes = await api('listMedia', { venueId });
-        mediaList = mediaRes.media || [];
-      } catch(err) {}
-
-      let galleryHtml = `<p style="font-size:13px; color:var(--text-muted); font-weight:600;">Belum ada foto galeri untuk venue ini.</p>`;
-      if (mediaList.length > 0) {
-        galleryHtml = `
-          <div class="modal-gallery">
-            ${mediaList.map(m => `<img src="${m.URL_TAMPIL || m.url_tampil}" alt="Foto Venue" onclick="window.open('${m.URL_TAMPIL || m.url_tampil}', '_blank')">`).join('')}
-          </div>
-          <p style="font-size:11px; color:var(--text-muted); margin-top:6px;">* Klik pada foto untuk memperbesar.</p>
-        `;
-      }
-
-      const content = `
-        <div style="display:flex; flex-direction:column; gap:16px; font-size:14px; color:var(--text-main);">
-          <div><strong style="color:var(--text-muted); display:block; font-size:11px; text-transform:uppercase;">Kota</strong> <span style="font-weight:700;">${v.KOTA || v.kota || '-'}</span></div>
-          <div><strong style="color:var(--text-muted); display:block; font-size:11px; text-transform:uppercase;">Alamat Lengkap</strong> <span style="font-weight:700;">${v.ALAMAT || v.alamat || '-'}</span></div>
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-            <div><strong style="color:var(--text-muted); display:block; font-size:11px; text-transform:uppercase;">Jenis / Fitur</strong> <span style="font-weight:700;">${v.JENIS_VENUE || '-'} (${v.FITUR_VENUE || '-'})</span></div>
-            <div><strong style="color:var(--text-muted); display:block; font-size:11px; text-transform:uppercase;">Kapasitas Tamu</strong> <span style="font-weight:700;">${v.KAPASITAS || v.kapasitas || '-'} Orang</span></div>
-          </div>
-          <div><strong style="color:var(--text-muted); display:block; font-size:11px; text-transform:uppercase;">Informasi Harga</strong> <span style="color:#0284c7; font-weight:800; font-size:16px;">${pInfo.amount ? 'Rp ' + Number(pInfo.amount).toLocaleString('id-ID') : 'Hubungi Admin'}</span> (${pInfo.note || 'Standar'})</div>
-          <div><strong style="color:var(--text-muted); display:block; font-size:11px; text-transform:uppercase;">Fasilitas</strong> <span style="font-weight:700;">${v.FASILITAS || v.fasilitas || '-'}</span></div>
-          <div><strong style="color:var(--text-muted); display:block; font-size:11px; text-transform:uppercase;">Deskripsi</strong> <div style="font-weight:600; margin-top:4px;">${v.DESKRIPSI || v.deskripsi || 'Tidak ada deskripsi.'}</div></div>
-          
-          <div>
-            <strong style="color:var(--text-muted); display:block; font-size:11px; text-transform:uppercase; margin-bottom:4px;">📸 Galeri Foto Venue</strong>
-            ${galleryHtml}
-          </div>
-
-          <hr style="border:0; border-top:1px solid var(--border); margin:4px 0;">
-          
-          <h4 style="font-size:16px; font-weight:800; color:var(--text-main);">📅 Jadwalkan Survei atau Tanya Venue</h4>
-          <div style="display:flex; flex-direction:column; gap:12px;">
-            <input type="text" id="leadNameInput" value="${currentClient.NAMA || currentClient.nama || ''}" placeholder="Nama Anda" style="padding:11px 14px; border:1px solid var(--border); border-radius:8px; font-size:14px; font-weight:600; outline:none;">
-            <input type="text" id="leadWaInput" placeholder="Nomor WhatsApp (Contoh: 08123456789)" style="padding:11px 14px; border:1px solid var(--border); border-radius:8px; font-size:14px; font-weight:600; outline:none;">
-            <textarea id="leadMsgInput" placeholder="Pesan atau catatan untuk venue ini..." style="padding:11px 14px; border:1px solid var(--border); border-radius:8px; font-size:14px; font-weight:600; height:90px; outline:none; resize:vertical;"></textarea>
-            <button type="button" class="btn primary" onclick="submitVenueLead('${venueId}')">Kirim Permintaan ke Admin</button>
-          </div>
-        </div>
-      `;
-      $('modalVenueContent').innerHTML = content;
-    };
-
-    window.submitVenueLead = async function(venueId) {
-      const name = $('leadNameInput').value.trim();
-      const whatsapp = $('leadWaInput').value.trim();
-      const message = $('leadMsgInput').value.trim();
-
-      if (!name || !whatsapp) return toast('Nama dan WhatsApp wajib diisi!', true);
-
-      try {
-        const res = await api('createLead', { name, whatsapp, venueId, message });
-        if (res.status !== 'BERHASIL') throw new Error(res.message);
-        toast('Permintaan berhasil dikirim ke Admin!');
-        $('venueDetailModal').classList.add('hidden');
-      } catch (e) {
-        toast(e.message, true);
-      }
-    };
-
     window.toggleSaveVenue = function(venueId) {
       const idx = savedVenueIds.indexOf(venueId);
       if (idx > -1) {
@@ -519,7 +417,7 @@
             <div class="venue-content">
               <div class="venue-title">${name}</div>
               <div class="venue-location">📍 ${kota}</div>
-              <button type="button" class="btn primary sm" onclick="openDetailModal('${id}')" style="width:100%; margin-top:auto;">Lihat Detail & Galeri</button>
+              <button type="button" class="btn primary sm" onclick="window.location.href='./venue-detail.html?id=${id}'" style="width:100%; margin-top:auto;">Lihat Detail & Galeri</button>
             </div>
           </div>
         `;
@@ -529,13 +427,6 @@
     $('btnLogout').addEventListener('click', () => {
       localStorage.removeItem('wvh_client');
       window.location.href = './index.html';
-    });
-
-    document.querySelectorAll('[data-close-modal]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const modal = $(btn.dataset.closeModal);
-        if (modal) modal.classList.add('hidden');
-      });
     });
 
     document.addEventListener('DOMContentLoaded', () => {

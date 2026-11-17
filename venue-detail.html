@@ -9,8 +9,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #0ea5e9;
-      --primary-dark: #0284c7;
+      --primary: #8b5cf6; /* Disesuaikan dengan warna ungu lembut tema pop-up */
+      --primary-dark: #7c3aed;
       --bg-color: #f1f5f9;
       --card-bg: #ffffff;
       --text-main: #0f172a;
@@ -24,7 +24,7 @@
     /* Header */
     .client-header { background: #ffffff; border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
     .client-brand { display: flex; align-items: center; gap: 12px; }
-    .client-brand-icon { width: 38px; height: 38px; background: linear-gradient(135deg, var(--primary), #2563eb); border-radius: 10px; display: grid; place-items: center; font-weight: 800; color: #fff; font-size: 18px; }
+    .client-brand-icon { width: 38px; height: 38px; background: linear-gradient(135deg, var(--primary), #6366f1); border-radius: 10px; display: grid; place-items: center; font-weight: 800; color: #fff; font-size: 18px; }
     .client-brand div strong { display: block; font-size: 15px; color: var(--text-main); }
     .client-brand div span { font-size: 11px; font-weight: 700; color: var(--primary); letter-spacing: 0.05em; }
 
@@ -47,7 +47,7 @@
     .venue-address { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 14px; line-height: 1.4; }
     .venue-desc { font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
 
-    /* Kotak Informasi Kecil (Grid 2x2 seperti gambar) */
+    /* Kotak Informasi Kecil */
     .info-grid-boxes { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
     .info-box-item { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; background: #fff; }
     .info-box-item label { display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
@@ -74,6 +74,23 @@
     .gallery-thumb-item { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; transition: transform 0.2s; }
     .gallery-thumb-item:hover { transform: scale(1.02); }
     .empty-gallery { border: 2px dashed var(--border); border-radius: 8px; padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 13px; font-weight: 600; }
+
+    /* Modal Pop-up Tanya Venue */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: grid; place-items: center; z-index: 1000; padding: 20px; }
+    .modal-backdrop.hidden { display: none; }
+    .modal-box { background: #fff; width: 100%; max-width: 500px; border-radius: 16px; padding: 28px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); position: relative; }
+    .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .modal-title { font-size: 20px; font-weight: 800; color: var(--text-main); }
+    .modal-subtitle { font-size: 12px; font-weight: 600; color: var(--text-muted); line-height: 1.4; margin-bottom: 20px; }
+    .close-modal-btn { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; font-weight: 700; color: var(--text-main); }
+    
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 800; margin-bottom: 6px; color: var(--text-main); }
+    .form-group input, .form-group textarea { width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 600; background: #fff; outline: none; }
+    .form-group input:focus, .form-group textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15); }
+    
+    .checkbox-group { display: flex; align-items: flex-start; gap: 8px; margin: 20px 0; font-size: 12px; font-weight: 600; color: var(--text-muted); line-height: 1.4; cursor: pointer; }
+    .checkbox-group input { width: 16px; height: 16px; margin-top: 1px; accent-color: var(--primary); cursor: pointer; }
 
     /* Toast */
     .toast { position: fixed; bottom: 24px; right: 24px; background: #0f172a; color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 700; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.15); z-index: 2000; }
@@ -121,6 +138,53 @@
 
     </div>
   </main>
+
+  <!-- MODAL POP-UP TANYA VENUE -->
+  <div id="tanyaVenueModal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Tanya Venue</div>
+        </div>
+        <button type="button" class="close-modal-btn" onclick="closeTanyaModal()">✕</button>
+      </div>
+      <div class="modal-subtitle">
+        Isi data berikut. Data akan disimpan ke CRM sebelum WhatsApp dibuka. Pesan baru terkirim setelah Anda menekan tombol Kirim di WhatsApp.
+      </div>
+
+      <div class="form-group">
+        <label>Nama *</label>
+        <input type="text" id="popupName" placeholder="Nama lengkap Anda">
+      </div>
+
+      <div class="form-group">
+        <label>Nomor WhatsApp *</label>
+        <input type="text" id="popupWa" placeholder="Contoh: 08123456789">
+      </div>
+
+      <div class="form-group">
+        <label>Tanggal acara (opsional)</label>
+        <input type="date" id="popupDate">
+      </div>
+
+      <div class="form-group">
+        <label>Jumlah tamu (opsional)</label>
+        <input type="number" id="popupGuests" placeholder="Contoh: 500">
+      </div>
+
+      <div class="form-group">
+        <label>Pertanyaan / kebutuhan</label>
+        <textarea id="popupMsg" rows="3" placeholder="Tulis pertanyaan Anda..."></textarea>
+      </div>
+
+      <label class="checkbox-group">
+        <input type="checkbox" id="popupConsent" checked>
+        <span>Saya setuju data ini dicatat untuk keperluan tindak lanjut Wedding Venue Hub.</span>
+      </label>
+
+      <button type="button" class="btn primary" style="width:100%; padding:14px; font-size:15px;" onclick="submitTanyaVenueAndOpenWA()">Simpan dan lanjut ke WhatsApp</button>
+    </div>
+  </div>
 
   <div id="toast" class="toast hidden"></div>
 
@@ -268,7 +332,7 @@
         ${mapsUrl ? `<a href="${mapsUrl}" target="_blank" class="btn outline">Lihat lokasi di Maps</a>` : ''}
 
         <div class="action-buttons">
-          <button type="button" class="btn primary" onclick="submitLeadQuick()">Tanya Venue Ini</button>
+          <button type="button" class="btn primary" onclick="openTanyaModal()">Tanya Venue Ini</button>
           <button type="button" class="btn secondary" onclick="openAdminWhatsApp('${kontak}')">Hubungi Admin</button>
         </div>
       `;
@@ -286,24 +350,69 @@
       }
     }
 
-    async function submitLeadQuick() {
+    // Fungsi Modal Tanya Venue
+    function openTanyaModal() {
+      if (!venueData) return;
+      $('popupName').value = currentClient.NAMA || currentClient.nama || '';
+      $('popupWa').value = '';
+      $('popupDate').value = '';
+      $('popupGuests').value = '';
+      $('popupMsg').value = `Saya ingin bertanya tentang venue ${venueData.NAMA_VENUE || venueData.nama_venue || ''}.`;
+      $('tanyaVenueModal').classList.remove('hidden');
+    }
+
+    function closeTanyaModal() {
+      $('tanyaVenueModal').classList.add('hidden');
+    }
+
+    async function submitTanyaVenueAndOpenWA() {
+      const name = $('popupName').value.trim();
+      const whatsapp = $('popupWa').value.trim();
+      const date = $('popupDate').value;
+      const guests = $('popupGuests').value;
+      const notes = $('popupMsg').value.trim();
       const venueId = venueData ? (venueData.ID_VENUE || venueData.id_venue) : '';
-      const name = currentClient.NAMA || currentClient.nama || 'Klien';
-      const whatsapp = currentClient.EMAIL || '-';
-      const message = 'Halo, saya tertarik dengan venue ' + (venueData?.NAMA_VENUE || '') + ' dan ingin menjadwalkan survei.';
+      const venueName = venueData ? (venueData.NAMA_VENUE || venueData.nama_venue) : '';
+
+      if (!name || !whatsapp) {
+        toast('Nama dan Nomor WhatsApp wajib diisi!', true);
+        return;
+      }
+
+      const fullMessage = `${notes} (Tanggal Acara: ${date || 'Fleksibel'}, Tamu: ${guests || '-'})`;
 
       try {
-        const res = await api('createLead', { name, whatsapp, venueId, message });
+        // 1. Catat ke Spreadsheet via API backend (Sheet LEADS)
+        const res = await api('createLead', { 
+          name: name, 
+          whatsapp: whatsapp, 
+          venueId: venueId, 
+          message: fullMessage 
+        });
+        
         if (res.status !== 'BERHASIL') throw new Error(res.message);
-        toast('Permintaan berhasil dikirim ke Admin!');
+
+        toast('Data berhasil dicatat ke CRM/Spreadsheet!');
+        closeTanyaModal();
+
+        // 2. Buka WhatsApp Admin / Venue
+        let waTarget = String(venueData.KONTAK || '').replace(/\D/g, '').replace(/^0/, '62');
+        if (!waTarget || waTarget.length < 5) waTarget = '6281234567890'; // Fallback admin
+
+        const waText = encodeURIComponent(`Halo Admin,\n\nNama: ${name}\nNo WA: ${whatsapp}\nVenue: ${venueName}\nTanggal: ${date || '-'}\nTamu: ${guests || '-'}\nPertanyaan: ${notes}`);
+        
+        setTimeout(() => {
+          window.open(`https://wa.me/${waTarget}?text=${waText}`, '_blank');
+        }, 800);
+
       } catch (e) {
-        toast(e.message, true);
+        toast('Gagal mencatat data: ' + e.message, true);
       }
     }
 
     function openAdminWhatsApp(kontak) {
       let wa = String(kontak || '').replace(/\D/g, '').replace(/^0/, '62');
-      if (!wa || wa.length < 5) wa = '6281234567890'; // Default fallback
+      if (!wa || wa.length < 5) wa = '6281234567890';
       const text = encodeURIComponent('Halo Admin, saya ingin bertanya seputar ketersediaan venue ' + (venueData?.NAMA_VENUE || ''));
       window.open(`https://wa.me/${wa}?text=${text}`, '_blank');
     }

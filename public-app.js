@@ -209,3 +209,32 @@
     }
   });
 })();
+
+// Impor fungsi Firebase Auth yang dibutuhkan (sesuaikan dengan cara lo import Firebase di project)
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.x.x/firebase-auth.js";
+
+const auth = getAuth();
+const provider = new GoogleAuthProvider();
+
+// Tangkap event klik tombol Google
+document.getElementById('btnGoogleLogin').addEventListener('click', () => {
+  signInWithPopup(auth, provider)
+    .then((result) => {
+      // Berhasil login dengan Google!
+      const user = result.user;
+      const email = user.email;
+      const name = user.displayName;
+
+      console.log("Login Google Sukses:", name, email);
+      showToast("Berhasil masuk dengan Google!", "success");
+
+      // [PENTING] Kirim email & nama ini ke backend Google Apps Script lo 
+      // untuk mengecek / mendaftarkan klien otomatis ke Google Sheets.
+      syncUserToSheets(name, email);
+
+    })
+    .catch((error) => {
+      console.error("Gagal login Google:", error.message);
+      showToast("Gagal login dengan Google: " + error.message, "err");
+    });
+});

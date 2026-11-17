@@ -52,7 +52,8 @@
     .venue-thumb { height: 190px; background: #cbd5e1; position: relative; background-size: cover; background-position: center; }
     .venue-content { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
     .venue-title { font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 6px; line-height: 1.3; }
-    .venue-location { font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 12px; }
+    .venue-location { font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+    .venue-distance { font-size: 12px; font-weight: 800; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 4px; }
     .venue-price { font-size: 16px; font-weight: 800; color: #0284c7; margin-top: auto; margin-bottom: 16px; }
     .badge-tag { display: inline-block; padding: 4px 10px; font-size: 11px; font-weight: 700; background: #e2e8f0; color: #334155; border-radius: 6px; margin-right: 6px; margin-bottom: 12px; text-transform: uppercase; }
 
@@ -62,6 +63,8 @@
     .btn.primary:hover { background: var(--primary-dark); }
     .btn.danger { background: #ef4444; color: #fff; }
     .btn.danger:hover { background: #dc2626; }
+    .btn.outline { background: #fff; border: 1px solid var(--border); color: var(--text-main); }
+    .btn.outline:hover { background: #f8fafc; }
     .btn.sm { padding: 8px 14px; font-size: 13px; }
 
     /* Toast */
@@ -113,9 +116,15 @@
           <input type="text" id="searchKeyword" placeholder="Cari nama venue, fasilitas, atau kata kunci...">
         </div>
         <div class="filter-group">
-          <label>📍 Filter Kota</label>
+          <label>📍 Filter Kota / Wilayah</label>
           <select id="filterKota">
             <option value="">Semua Kota</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>🏙️ Filter Kecamatan / Area</label>
+          <select id="filterKecamatan">
+            <option value="">Semua Kecamatan</option>
           </select>
         </div>
         <div class="filter-group">
@@ -145,12 +154,16 @@
           <input type="number" id="filterMaxPrice" placeholder="Contoh: 50000000">
         </div>
         <div class="filter-group">
-          <label>📊 Urutkan Harga</label>
+          <label>📊 Urutkan</label>
           <select id="sortPrice">
             <option value="">Urutkan Standar</option>
-            <option value="cheap">Termurah (Murah Meriah)</option>
-            <option value="expensive">Termahal</option>
+            <option value="cheap">Harga Termurah</option>
+            <option value="expensive">Harga Termahal</option>
           </select>
+        </div>
+        <div class="filter-group">
+          <label>📍 Akses GPS</label>
+          <button type="button" class="btn outline" onclick="sortByNearestLocation()" style="width:100%; height:46px; font-weight:800;">📍 Urutkan Lokasi Terdekat</button>
         </div>
       </div>
 
@@ -255,10 +268,17 @@
         const res = await api('listVenues');
         allVenues = res.venues || res.data || [];
         
+        // Populate Dropdown Kota & Kecamatan secara dinamis
         const kotaSet = [...new Set(allVenues.map(v => v.KOTA || v.kota).filter(Boolean))];
         const kotaSelect = $('filterKota');
         if (kotaSelect) {
           kotaSelect.innerHTML = '<option value="">Semua Kota</option>' + kotaSet.map(k => `<option value="${k}">${k}</option>`).join('');
+        }
+
+        const kecamatanSet = [...new Set(allVenues.map(v => v.KECAMATAN || v.kecamatan || v.ALAMAT || v.alamat).filter(Boolean))];
+        const kecSelect = $('filterKecamatan');
+        if (kecSelect) {
+          kecSelect.innerHTML = '<option value="">Semua Kecamatan</option>' + kecamatanSet.map(kc => `<option value="${kc}">${kc}</option>`).join('');
         }
 
         renderVenuesList(allVenues);
@@ -299,6 +319,11 @@
 
         const isSaved = savedVenueIds.includes(id);
 
+        let distanceHtml = '';
+        if (v._distance !== undefined) {
+          distanceHtml = `<div class="venue-distance">📍 Berjarak ± ${v._distance.toFixed(1)} km dari lokasi Anda</div>`;
+        }
+
         return `
           <div class="venue-card-client">
             <div class="venue-thumb" style="background-image: url('${coverUrl}')">
@@ -313,6 +338,7 @@
               </div>
               <div class="venue-title">${name}</div>
               <div class="venue-location">📍 ${kota}</div>
+              ${distanceHtml}
               <div class="venue-price">${priceStr}</div>
               <button type="button" class="btn primary sm" onclick="window.location.href='./venue-detail.html?id=${id}'" style="width:100%;">Lihat Detail & Galeri</button>
             </div>
@@ -324,6 +350,7 @@
     function applyFilters() {
       const keyword = $('searchKeyword').value.toLowerCase();
       const kota = $('filterKota').value;
+      const kecamatan = $('filterKecamatan').value;
       const jenis = $('filterJenis').value;
       const fitur = $('filterFitur').value;
       const minPrice = Number($('filterMinPrice').value) || 0;
@@ -331,9 +358,10 @@
       const sortVal = $('sortPrice').value;
 
       let filtered = allVenues.filter(v => {
-        const textMatch = ((v.NAMA_VENUE || '') + ' ' + (v.KOTA || '') + ' ' + (v.DESKRIPSI || '') + ' ' + (v.ALAMAT || '')).toLowerCase();
+        const textMatch = ((v.NAMA_VENUE || '') + ' ' + (v.KOTA || '') + ' ' + (v.KECAMATAN || '') + ' ' + (v.DESKRIPSI || '') + ' ' + (v.ALAMAT || '')).toLowerCase();
         if (keyword && !textMatch.includes(keyword)) return false;
         if (kota && (v.KOTA || v.kota) !== kota) return false;
+        if (kecamatan && !textMatch.includes(kecamatan.toLowerCase())) return false;
         if (jenis && (v.JENIS_VENUE || v.jenis_venue) !== jenis) return false;
         if (fitur && (v.FITUR_VENUE || v.fitur_venue) !== fitur) return false;
 
@@ -368,7 +396,48 @@
       renderVenuesList(filtered);
     }
 
-    ['searchKeyword', 'filterKota', 'filterJenis', 'filterFitur', 'filterMinPrice', 'filterMaxPrice', 'sortPrice'].forEach(id => {
+    // --- FITUR LOKASI TERDEKAT (Haversine Formula) ---
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371; // Radius bumi dalam km
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    window.sortByNearestLocation = function() {
+      if (!navigator.geolocation) {
+        toast('Browser Anda tidak mendukung fitur geolokasi!', true);
+        return;
+      }
+
+      toast('Mendeteksi posisi Anda...');
+      navigator.geolocation.getCurrentPosition(position => {
+        const userLat = position.coords.latitude;
+        const userLon = position.coords.longitude;
+
+        allVenues.forEach(v => {
+          const lat = parseFloat(v.LATITUDE || v.latitude);
+          const lon = parseFloat(v.LONGITUDE || v.longitude);
+          if (!isNaN(lat) && !isNaN(lon)) {
+            v._distance = calculateDistance(userLat, userLon, lat, lon);
+          } else {
+            v._distance = 99999; // Jika koordinat kosong, letakkan di urutan paling bawah
+          }
+        });
+
+        allVenues.sort((a, b) => a._distance - b._distance);
+        toast('Berhasil mengurutkan venue terdekat!');
+        renderVenuesList(allVenues);
+      }, error => {
+        toast('Gagal mendeteksi lokasi. Pastikan izin GPS aktif.', true);
+      }, { timeout: 10000 });
+    };
+
+    ['searchKeyword', 'filterKota', 'filterKecamatan', 'filterJenis', 'filterFitur', 'filterMinPrice', 'filterMaxPrice', 'sortPrice'].forEach(id => {
       const el = $(id);
       if (el) {
         el.addEventListener('input', applyFilters);

@@ -337,24 +337,25 @@
 
   // --- CLIENTS, SETTINGS, ACTIVITY ---
   async function loadClients() {
-    try {
-      const res = await api('listClients');
-      const list = res.clients || [];
-      if ($('statClients')) $('statClients').textContent = list.length;
-      const box = $('clientsContainer');
-      if (!box) return;
-      if (!list.length) {
-        box.className = 'empty';
-        box.textContent = 'Belum ada klien.';
-        return;
-      }
-      box.className = 'table-wrap';
-      box.innerHTML = `<table><thead><tr><th>ID</th><th>Nama</th><th>Email</th><th>Status</th></tr></thead><tbody>` +
-        list.map((c) => `<tr><td>${c.ID_KLIEN}</td><td><strong>${c.NAMA}</strong></td><td>${c.EMAIL}</td><td>${c.STATUS}</td></tr>`).join('') + `</tbody></table>`;
-    } catch (e) {
-      toast(e.message, true);
+  try {
+    const res = await api('listClients');
+    // Mendukung properti 'clients' atau 'data' secara otomatis
+    const list = res.clients || res.data || [];
+    if ($('statClients')) $('statClients').textContent = list.length;
+    const box = $('clientsContainer');
+    if (!box) return;
+    if (!list.length) {
+      box.className = 'empty';
+      box.textContent = 'Belum ada klien terdaftar.';
+      return;
     }
+    box.className = 'table-wrap';
+    box.innerHTML = `<table><thead><tr><th>ID</th><th>Nama</th><th>Email</th><th>Status</th></tr></thead><tbody>` +
+      list.map((c) => `<tr><td>${c.ID_KLIEN || c.id_klien || '-'}</td><td><strong>${c.NAMA || c.nama || '-'}</strong></td><td>${c.EMAIL || c.email || '-'}</td><td>${c.STATUS || c.status || 'AKTIF'}</td></tr>`).join('') + `</tbody></table>`;
+  } catch (e) {
+    toast(e.message, true);
   }
+}
 
   async function addClient() {
     const name = $('newClientName') ? $('newClientName').value.trim() : '';

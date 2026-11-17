@@ -1,159 +1,298 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wedding Venue Hub - Temukan Venue Pernikahan Impian</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WVH — Modern Admin Console</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- HEADER / NAVBAR PUBLIK -->
-  <header class="site-header">
-    <div class="container header-container">
-      <div class="brand-wrapper">
-        <div class="logo-box">W</div>
-        <div>
-          <div class="brand-title">Wedding Venue Hub</div>
-          <div class="brand-subtitle">Public Portal</div>
-        </div>
-      </div>
-      <div class="header-actions">
-        <!-- TOMBOL LOGIN / SIGNUP -->
-        <button class="btn-secondary-header" id="btnLoginModal">Masuk / Daftar</button>
-        <button id="themeToggle" class="btn-theme" title="Ubah Tema"><span id="themeToggleIcon">☀</span> Mode</button>
+
+<div class="app-shell">
+  <aside>
+    <div class="brand">
+      <div class="brand-icon">W</div>
+      <div class="brand-text">
+        <strong>Wedding Venue Hub</strong>
+        <span>ADMIN CONSOLE</span>
       </div>
     </div>
-  </header>
+    <nav id="nav">
+      <button class="active" onclick="switchTab('dashboard', this)">◈ Dashboard</button>
+      <button onclick="switchTab('venues', this)">▦ Kelola Venue</button>
+      <button onclick="switchTab('media', this)">▧ Galeri Media</button>
+      <button onclick="switchTab('leads', this)">↗ Leads & Survei</button>
+      <button onclick="switchTab('clients', this)">♙ Akun Klien</button>
+      <button onclick="switchTab('settings', this)">⚙ Pengaturan Web</button>
+      <button onclick="switchTab('activity', this)">≋ Log Aktivitas</button>
+    </nav>
+  </aside>
 
-  <!-- BANNER UTAMA -->
-  <div class="container banner-container">
-    <div class="hero-banner">
-      <h1>Hubungi Kami Jika butuh Wedding Organizer</h1>
-      <p>Klik tombol Hubungi Admin untuk konsultasi gratis</p>
+  <main>
+    <div class="topbar">
+      <div>
+        <span style="font-size:11px;color:var(--cyan);font-weight:700;letter-spacing:.12em;">CONTROL CENTER</span>
+        <h1 id="pageTitle">Dashboard</h1>
+      </div>
+      <span class="badge-open">● AKSES LANGSUNG AKTIF</span>
     </div>
-  </div>
 
-  <!-- KONTEN UTAMA -->
-  <main class="container main-content">
-    
-    <!-- SECTION PENCARIAN & FILTER VENUE -->
-    <section class="discovery-section">
-      <div class="section-badge">WEDDING VENUE DISCOVERY</div>
-      <h2>Temukan venue pernikahan impianmu.</h2>
-      <p>Cari dan bandingkan venue berdasarkan lokasi, harga, dan kebutuhan acara.</p>
-
-      <div class="filter-card-advanced">
-        <div class="filter-row">
-          <div class="form-group-flex">
-            <label>Cari venue</label>
-            <input type="text" id="searchQuery" placeholder="Cari nama venue atau lokasi..." class="filter-input">
-          </div>
-          <div class="form-group-flex">
-            <label>Kota</label>
-            <select id="filterCity" class="filter-select">
-              <option value="">Semua kota</option>
-            </select>
-          </div>
-          <div class="form-group-flex">
-            <label>Jenis Venue</label>
-            <select id="filterJenis" class="filter-select">
-              <option value="">Semua jenis venue</option>
-              <option value="Indoor">Indoor</option>
-              <option value="Outdoor">Outdoor</option>
-              <option value="Semi-Outdoor">Semi-Outdoor</option>
-              <option value="Hotel">Hotel</option>
-              <option value="Function room facility">Function Room</option>
-              <option value="Wedding Hall">Wedding Hall</option>
-              <option value="Convention center">Convention Center</option>
-              <option value="Event venue">Event Venue</option>
-            </select>
-          </div>
+    <!-- 1. DASHBOARD -->
+    <section id="tab-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="label">Total Venue Terdaftar</div>
+          <div class="value" id="statVenues">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Total Akun Klien</div>
+          <div class="value" id="statClients">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Total Leads Masuk</div>
+          <div class="value" id="statLeads">—</div>
         </div>
       </div>
 
-      <!-- KOTAK PINTASAN -->
-      <div class="shortcut-grid">
-        <div class="shortcut-card">
-          <span class="shortcut-icon">❤️</span>
-          <div>
-            <h3>Venue Favorit</h3>
-            <p>Simpan tempat impianmu (Login diperlukan)</p>
-          </div>
+      <div class="card">
+        <div class="card-header">
+          <h2>Status Koneksi Backend Google Sheets</h2>
+          <button class="btn primary" onclick="checkHealth()">Tes Koneksi API</button>
         </div>
-        <div class="shortcut-card">
-          <span class="shortcut-icon">🏷️</span>
-          <div>
-            <h3>Harga Terbaik</h3>
-            <p>Pilihan venue sesuai budget</p>
-          </div>
-        </div>
-        <div class="shortcut-card">
-          <span class="shortcut-icon">📍</span>
-          <div>
-            <h3>Lokasi Strategis</h3>
-            <p>Temukan venue di area pilihanmu</p>
-          </div>
-        </div>
+        <pre id="healthOutput" style="background:#0b0f19;padding:14px;border-radius:10px;font-size:12px;color:var(--cyan);overflow-x:auto;">Klik tombol "Tes Koneksi API" untuk memeriksa respons Google Apps Script.</pre>
       </div>
     </section>
 
-    <!-- SECTION REKOMENDASI / LIST VENUE -->
-    <section class="recommendation-section">
-      <div class="section-header-flex">
-        <div>
-          <div class="section-badge">PILIHAN UTAMA</div>
-          <h2>Rekomendasi Venue</h2>
-          <p>Jelajahi venue terbaik yang tersedia.</p>
+    <!-- 2. VENUE -->
+    <section id="tab-venues" class="hidden">
+      <div class="card">
+        <div class="card-header">
+          <h2>Katalog Venue</h2>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn" onclick="loadVenues()">↻ Muat Ulang</button>
+            <button class="btn primary" onclick="openVenueModal()">+ Tambah Venue</button>
+          </div>
         </div>
-      </div>
-
-      <!-- State Loading & Error -->
-      <div id="venueLoading" class="loading-state hidden">Memuat daftar venue dari database...</div>
-      <div id="venueError" class="error-state hidden">Gagal memuat daftar venue. Periksa koneksi backend.</div>
-
-      <!-- Grid Daftar Venue -->
-      <div id="venueList" class="venue-grid">
-        <!-- Kartu venue akan dimuat secara dinamis lewat app.js di sini -->
+        <input id="venueSearch" type="search" placeholder="Cari nama venue, kota, atau ID..." oninput="renderVenues()">
+        <div id="venuesContainer" class="empty">Memuat data venue...</div>
       </div>
     </section>
 
+    <!-- 3. MEDIA -->
+    <section id="tab-media" class="hidden">
+      <div class="card">
+        <h2>Pilih Venue & Tambah Foto (URL Google Drive / Link Gambar)</h2>
+        <div class="grid-2" style="margin-top:14px;">
+          <div class="field">
+            <label>Pilih Venue</label>
+            <select id="mediaVenueSelect" onchange="loadMedia()"></select>
+          </div>
+          <div class="field">
+            <label>Nama / Judul Foto</label>
+            <input id="mediaName" placeholder="Contoh: Ballroom Utama">
+          </div>
+        </div>
+        <div class="field">
+          <label>URL Gambar / Link Google Drive</label>
+          <input id="mediaUrl" placeholder="https://drive.google.com/file/d/... atau https://...">
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <input id="mediaIsCover" type="checkbox" style="width:auto;"> Jadikan Foto Utama (Cover)
+          </label>
+          <button class="btn primary" onclick="saveMediaUrl()">Simpan Foto ke Galeri</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>Galeri Foto Venue Terpilih</h2>
+          <button class="btn sm" onclick="loadMedia()">↻ Muat Ulang</button>
+        </div>
+        <div id="mediaContainer" class="empty">Pilih venue di atas untuk melihat foto.</div>
+      </div>
+    </section>
+
+    <!-- 4. LEADS -->
+    <section id="tab-leads" class="hidden">
+      <div class="card">
+        <div class="card-header">
+          <h2>Daftar Leads & Jadwal Survei</h2>
+          <div style="display:flex;gap:8px;">
+            <button class="btn" onclick="loadLeads()">↻ Muat Ulang</button>
+            <button class="btn primary" onclick="openLeadModal()">+ Tambah Lead</button>
+          </div>
+        </div>
+        <div id="leadsContainer" class="empty">Memuat data leads...</div>
+      </div>
+    </section>
+
+    <!-- 5. CLIENTS -->
+    <section id="tab-clients" class="hidden">
+      <div class="card">
+        <h2>Tambah Akun Klien Manual</h2>
+        <div class="grid-2" style="margin-top:12px;">
+          <div class="field"><label>Nama Lengkap</label><input id="newClientName" placeholder="Nama klien"></div>
+          <div class="field"><label>Email</label><input id="newClientEmail" type="email" placeholder="email@domain.com"></div>
+        </div>
+        <button class="btn primary" onclick="addClient()">Buat Akun Klien</button>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h2>Daftar Akun Klien</h2>
+          <button class="btn sm" onclick="loadClients()">↻ Muat Ulang</button>
+        </div>
+        <div id="clientsContainer" class="empty">Memuat data klien...</div>
+      </div>
+    </section>
+
+    <!-- 6. SETTINGS -->
+    <section id="tab-settings" class="hidden">
+      <div class="card">
+        <h2>Pengaturan Portal Publik</h2>
+        <div class="field" style="margin-top:14px;">
+          <label>Nomor WhatsApp Admin (Awali 62, tanpa +)</label>
+          <input id="setWa" placeholder="6281289716828">
+        </div>
+        <div class="field">
+          <label>URL Banner Header Portal</label>
+          <input id="setBanner" placeholder="https://...">
+        </div>
+        <div class="field">
+          <label>URL Pop-up Layanan (Rasio 4:5)</label>
+          <input id="setPopup" placeholder="https://...">
+        </div>
+        <button class="btn primary" onclick="saveSettings()">Simpan Semua Pengaturan</button>
+      </div>
+    </section>
+
+    <!-- 7. ACTIVITY -->
+    <section id="tab-activity" class="hidden">
+      <div class="card">
+        <div class="card-header">
+          <h2>Log Aktivitas Sistem</h2>
+          <button class="btn sm" onclick="loadActivity()">↻ Muat Ulang</button>
+        </div>
+        <div id="activityContainer" class="empty">Memuat log aktivitas...</div>
+      </div>
+    </section>
   </main>
+</div>
 
-  <!-- MODAL LOGIN / SIGNUP (TERSEMBUNYI AWALNYA) -->
-  <div id="authModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content" style="max-width: 400px;">
-      <button class="modal-close" id="closeAuthModal">&times;</button>
-      <h2 id="authModalTitle" style="margin-bottom: 15px;">Masuk ke Akun</h2>
-      <form id="authForm">
-        <div class="form-group" id="nameGroup" style="display: none; margin-bottom: 12px;">
-          <label>Nama Lengkap</label>
-          <input type="text" id="authName" class="filter-input" placeholder="Nama Anda">
-        </div>
-        <div class="form-group" style="margin-bottom: 12px;">
-          <label>Email</label>
-          <input type="email" id="authEmail" class="filter-input" required placeholder="email@domain.com">
-        </div>
-        <div class="form-group" style="margin-bottom: 20px;">
-          <label>Kata Sandi</label>
-          <input type="password" id="authPassword" class="filter-input" required placeholder="********">
-        </div>
-        <button type="submit" class="btn-submit-lead" style="width: 100%; margin-bottom: 10px;" id="authSubmitBtn">Masuk</button>
-        <p style="text-align: center; font-size: 0.9rem; color: var(--text-muted);">
-          <span id="authToggleText">Belum punya akun?</span> 
-          <a href="#" id="authToggleLink" style="color: var(--accent-color); text-decoration: underline;">Daftar di sini</a>
-        </p>
-      </form>
+<!-- MODAL VENUE -->
+<div id="venueModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeVenueModal()">
+  <div class="modal-box">
+    <div class="card-header">
+      <h2 id="vModalTitle">Tambah Venue Baru</h2>
+      <button class="btn sm" onclick="closeVenueModal()">✕</button>
+    </div>
+    <input type="hidden" id="vId">
+    <div class="grid-2">
+      <div class="field"><label>Nama Venue *</label><input id="vName" placeholder="Grand Ballroom..."></div>
+      <div class="field"><label>Kota *</label><input id="vCity" placeholder="Tangerang"></div>
+    </div>
+    <div class="field"><label>Alamat Lengkap</label><input id="vAddress" placeholder="Jl. ..."></div>
+    <div class="grid-3">
+      <div class="field">
+        <label>Jenis Venue</label>
+        <select id="vType">
+          <option value="Wedding Hall">Wedding Hall</option>
+          <option value="Hotel">Hotel</option>
+          <option value="Restoran">Restoran</option>
+          <option value="Convention center">Convention Center</option>
+          <option value="Event venue">Event Venue</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Fitur Area</label>
+        <select id="vFeature">
+          <option value="Indoor">Indoor</option>
+          <option value="Outdoor">Outdoor</option>
+          <option value="Semi-Outdoor">Semi-Outdoor</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Status</label>
+        <select id="vStatus">
+          <option value="AKTIF">AKTIF (Tampil)</option>
+          <option value="NONAKTIF">NONAKTIF (Sembunyi)</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="field"><label>Kapasitas Tamu</label><input id="vCap" type="number" placeholder="500"></div>
+      <div class="field"><label>Harga Paket (Rp)</label><input id="vPrice" type="number" placeholder="35000000"></div>
+      <div class="field"><label>Untuk Jumlah Tamu</label><input id="vPriceGuests" type="number" placeholder="200"></div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Catatan Harga</label><input id="vPriceNote" placeholder="Contoh: All-in catering"></div>
+      <div class="field"><label>Kontak Venue</label><input id="vContact" placeholder="0812..."></div>
+    </div>
+    <div class="field"><label>Link Google Maps</label><input id="vMaps" placeholder="https://maps.app.goo.gl/..."></div>
+    <div class="field"><label>Fasilitas (Pisahkan koma)</label><input id="vFacilities" placeholder="Parkir luas, Ruang VIP, Mushola"></div>
+    <div class="field"><label>Deskripsi</label><textarea id="vDesc" rows="3"></textarea></div>
+    <label style="display:flex;align-items:center;gap:8px;margin-bottom:18px;cursor:pointer;">
+      <input id="vRec" type="checkbox" style="width:auto;"> Jadikan Rekomendasi Utama di Halaman Depan
+    </label>
+    <div style="display:flex;justify-content:space-between;gap:10px;">
+      <button id="vDeleteBtn" class="btn danger hidden" onclick="deleteVenue()">Hapus Venue</button>
+      <div style="display:flex;gap:8px;margin-left:auto;">
+        <button class="btn" onclick="closeVenueModal()">Batal</button>
+        <button class="btn primary" onclick="saveVenue()">Simpan Venue</button>
+      </div>
     </div>
   </div>
+</div>
 
-  <!-- FOOTER -->
-  <footer class="site-footer">
-    <div class="container text-center">
-      <p>&copy; 2026 Wedding Venue Hub. All rights reserved.</p>
+<!-- MODAL LEAD -->
+<div id="leadModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeLeadModal()">
+  <div class="modal-box">
+    <div class="card-header">
+      <h2 id="lModalTitle">Kelola Lead</h2>
+      <button class="btn sm" onclick="closeLeadModal()">✕</button>
     </div>
-  </footer>
+    <input type="hidden" id="lId">
+    <div class="grid-2">
+      <div class="field"><label>Nama Calon Klien *</label><input id="lName"></div>
+      <div class="field"><label>Nomor WhatsApp *</label><input id="lWa" placeholder="0812..."></div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Venue Tujuan</label><select id="lVenue"></select></div>
+      <div class="field">
+        <label>Status Lead</label>
+        <select id="lStatus">
+          <option value="BARU">BARU</option>
+          <option value="DIHUBUNGI">DIHUBUNGI</option>
+          <option value="SURVEI">SURVEI</option>
+          <option value="NEGOSIASI">NEGOSIASI</option>
+          <option value="BERHASIL">BERHASIL</option>
+          <option value="BATAL">BATAL</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="field"><label>Tanggal Survei</label><input id="lSurveyDate" type="date"></div>
+      <div class="field"><label>Waktu Survei</label><input id="lSurveyTime" type="time"></div>
+      <div class="field">
+        <label>Status Survei</label>
+        <select id="lSurveyStatus">
+          <option value="BELUM_DIJADWALKAN">Belum Dijadwalkan</option>
+          <option value="DIJADWALKAN">Dijadwalkan</option>
+          <option value="SELESAI">Selesai</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>Catatan Admin</label><textarea id="lNotes" rows="3"></textarea></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;">
+      <button class="btn" onclick="closeLeadModal()">Batal</button>
+      <button class="btn primary" onclick="saveLead()">Simpan Lead</button>
+    </div>
+  </div>
+</div>
 
-  <!-- SCRIPT UTAMA -->
-  <script src="app.js"></script>
+<div id="toast" class="toast hidden"></div>
+
+<script src="app.js"></script>
 </body>
 </html>

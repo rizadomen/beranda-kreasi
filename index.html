@@ -3,9 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>WVH — Modern Admin Console</title>
+  <title>WVH — Admin Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="./style.css?v=2">
 </head>
 <body>
 
@@ -18,28 +20,28 @@
         <span>ADMIN CONSOLE</span>
       </div>
     </div>
-    <nav id="nav">
-      <button class="active" onclick="switchTab('dashboard', this)">◈ Dashboard</button>
-      <button onclick="switchTab('venues', this)">▦ Kelola Venue</button>
-      <button onclick="switchTab('media', this)">▧ Galeri Media</button>
-      <button onclick="switchTab('leads', this)">↗ Leads & Survei</button>
-      <button onclick="switchTab('clients', this)">♙ Akun Klien</button>
-      <button onclick="switchTab('settings', this)">⚙ Pengaturan Web</button>
-      <button onclick="switchTab('activity', this)">≋ Log Aktivitas</button>
+    <nav id="mainNav">
+      <button type="button" class="nav-btn active" data-tab="dashboard">◈ Dashboard</button>
+      <button type="button" class="nav-btn" data-tab="venues">▦ Kelola Venue</button>
+      <button type="button" class="nav-btn" data-tab="media">▧ Galeri Media</button>
+      <button type="button" class="nav-btn" data-tab="leads">↗ Leads & Survei</button>
+      <button type="button" class="nav-btn" data-tab="clients">♙ Akun Klien</button>
+      <button type="button" class="nav-btn" data-tab="settings">⚙ Pengaturan Web</button>
+      <button type="button" class="nav-btn" data-tab="activity">≋ Log Aktivitas</button>
     </nav>
   </aside>
 
   <main>
-    <div class="topbar">
+    <header class="topbar">
       <div>
-        <span style="font-size:11px;color:var(--cyan);font-weight:700;letter-spacing:.12em;">CONTROL CENTER</span>
+        <span class="eyebrow">CONTROL CENTER</span>
         <h1 id="pageTitle">Dashboard</h1>
       </div>
-      <span class="badge-open">● AKSES LANGSUNG AKTIF</span>
-    </div>
+      <div class="status-pill" id="apiBadge">● Memeriksa Koneksi...</div>
+    </header>
 
     <!-- 1. DASHBOARD -->
-    <section id="tab-dashboard">
+    <section id="tab-dashboard" class="tab-panel">
       <div class="stats-grid">
         <div class="stat-card">
           <div class="label">Total Venue Terdaftar</div>
@@ -58,35 +60,35 @@
       <div class="card">
         <div class="card-header">
           <h2>Status Koneksi Backend Google Sheets</h2>
-          <button class="btn primary" onclick="checkHealth()">Tes Koneksi API</button>
+          <button type="button" class="btn primary" id="btnCheckHealth">Tes Koneksi API</button>
         </div>
-        <pre id="healthOutput" style="background:#0b0f19;padding:14px;border-radius:10px;font-size:12px;color:var(--cyan);overflow-x:auto;">Klik tombol "Tes Koneksi API" untuk memeriksa respons Google Apps Script.</pre>
+        <pre id="healthOutput" class="code-box">Menghubungkan ke server Google Apps Script...</pre>
       </div>
     </section>
 
     <!-- 2. VENUE -->
-    <section id="tab-venues" class="hidden">
+    <section id="tab-venues" class="tab-panel hidden">
       <div class="card">
         <div class="card-header">
           <h2>Katalog Venue</h2>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn" onclick="loadVenues()">↻ Muat Ulang</button>
-            <button class="btn primary" onclick="openVenueModal()">+ Tambah Venue</button>
+          <div class="btn-group">
+            <button type="button" class="btn" id="btnReloadVenues">↻ Muat Ulang</button>
+            <button type="button" class="btn primary" id="btnNewVenue">+ Tambah Venue</button>
           </div>
         </div>
-        <input id="venueSearch" type="search" placeholder="Cari nama venue, kota, atau ID..." oninput="renderVenues()">
+        <input id="venueSearch" type="search" placeholder="Cari nama venue, kota, atau ID...">
         <div id="venuesContainer" class="empty">Memuat data venue...</div>
       </div>
     </section>
 
     <!-- 3. MEDIA -->
-    <section id="tab-media" class="hidden">
+    <section id="tab-media" class="tab-panel hidden">
       <div class="card">
-        <h2>Pilih Venue & Tambah Foto (URL Google Drive / Link Gambar)</h2>
-        <div class="grid-2" style="margin-top:14px;">
+        <h2>Tambah Foto Venue (Google Drive / Link Gambar)</h2>
+        <div class="grid-2 mt-14">
           <div class="field">
             <label>Pilih Venue</label>
-            <select id="mediaVenueSelect" onchange="loadMedia()"></select>
+            <select id="mediaVenueSelect"></select>
           </div>
           <div class="field">
             <label>Nama / Judul Foto</label>
@@ -97,31 +99,31 @@
           <label>URL Gambar / Link Google Drive</label>
           <input id="mediaUrl" placeholder="https://drive.google.com/file/d/... atau https://...">
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-            <input id="mediaIsCover" type="checkbox" style="width:auto;"> Jadikan Foto Utama (Cover)
+        <div class="flex-between">
+          <label class="checkbox-label">
+            <input id="mediaIsCover" type="checkbox"> Jadikan Foto Utama (Cover)
           </label>
-          <button class="btn primary" onclick="saveMediaUrl()">Simpan Foto ke Galeri</button>
+          <button type="button" class="btn primary" id="btnSaveMedia">Simpan Foto ke Galeri</button>
         </div>
       </div>
 
       <div class="card">
         <div class="card-header">
           <h2>Galeri Foto Venue Terpilih</h2>
-          <button class="btn sm" onclick="loadMedia()">↻ Muat Ulang</button>
+          <button type="button" class="btn sm" id="btnReloadMedia">↻ Muat Ulang</button>
         </div>
         <div id="mediaContainer" class="empty">Pilih venue di atas untuk melihat foto.</div>
       </div>
     </section>
 
     <!-- 4. LEADS -->
-    <section id="tab-leads" class="hidden">
+    <section id="tab-leads" class="tab-panel hidden">
       <div class="card">
         <div class="card-header">
           <h2>Daftar Leads & Jadwal Survei</h2>
-          <div style="display:flex;gap:8px;">
-            <button class="btn" onclick="loadLeads()">↻ Muat Ulang</button>
-            <button class="btn primary" onclick="openLeadModal()">+ Tambah Lead</button>
+          <div class="btn-group">
+            <button type="button" class="btn" id="btnReloadLeads">↻ Muat Ulang</button>
+            <button type="button" class="btn primary" id="btnNewLead">+ Tambah Lead</button>
           </div>
         </div>
         <div id="leadsContainer" class="empty">Memuat data leads...</div>
@@ -129,29 +131,29 @@
     </section>
 
     <!-- 5. CLIENTS -->
-    <section id="tab-clients" class="hidden">
+    <section id="tab-clients" class="tab-panel hidden">
       <div class="card">
         <h2>Tambah Akun Klien Manual</h2>
-        <div class="grid-2" style="margin-top:12px;">
+        <div class="grid-2 mt-14">
           <div class="field"><label>Nama Lengkap</label><input id="newClientName" placeholder="Nama klien"></div>
           <div class="field"><label>Email</label><input id="newClientEmail" type="email" placeholder="email@domain.com"></div>
         </div>
-        <button class="btn primary" onclick="addClient()">Buat Akun Klien</button>
+        <button type="button" class="btn primary" id="btnAddClient">Buat Akun Klien</button>
       </div>
       <div class="card">
         <div class="card-header">
           <h2>Daftar Akun Klien</h2>
-          <button class="btn sm" onclick="loadClients()">↻ Muat Ulang</button>
+          <button type="button" class="btn sm" id="btnReloadClients">↻ Muat Ulang</button>
         </div>
         <div id="clientsContainer" class="empty">Memuat data klien...</div>
       </div>
     </section>
 
     <!-- 6. SETTINGS -->
-    <section id="tab-settings" class="hidden">
+    <section id="tab-settings" class="tab-panel hidden">
       <div class="card">
         <h2>Pengaturan Portal Publik</h2>
-        <div class="field" style="margin-top:14px;">
+        <div class="field mt-14">
           <label>Nomor WhatsApp Admin (Awali 62, tanpa +)</label>
           <input id="setWa" placeholder="6281289716828">
         </div>
@@ -160,19 +162,19 @@
           <input id="setBanner" placeholder="https://...">
         </div>
         <div class="field">
-          <label>URL Pop-up Layanan (Rasio 4:5)</label>
+          <label>URL Pop-up Layanan (Wajib Rasio 4:5 / 1080x1350)</label>
           <input id="setPopup" placeholder="https://...">
         </div>
-        <button class="btn primary" onclick="saveSettings()">Simpan Semua Pengaturan</button>
+        <button type="button" class="btn primary" id="btnSaveSettings">Simpan Semua Pengaturan</button>
       </div>
     </section>
 
     <!-- 7. ACTIVITY -->
-    <section id="tab-activity" class="hidden">
+    <section id="tab-activity" class="tab-panel hidden">
       <div class="card">
         <div class="card-header">
           <h2>Log Aktivitas Sistem</h2>
-          <button class="btn sm" onclick="loadActivity()">↻ Muat Ulang</button>
+          <button type="button" class="btn sm" id="btnReloadActivity">↻ Muat Ulang</button>
         </div>
         <div id="activityContainer" class="empty">Memuat log aktivitas...</div>
       </div>
@@ -181,11 +183,11 @@
 </div>
 
 <!-- MODAL VENUE -->
-<div id="venueModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeVenueModal()">
+<div id="venueModal" class="modal-backdrop hidden">
   <div class="modal-box">
     <div class="card-header">
       <h2 id="vModalTitle">Tambah Venue Baru</h2>
-      <button class="btn sm" onclick="closeVenueModal()">✕</button>
+      <button type="button" class="btn sm" data-close-modal="venueModal">✕</button>
     </div>
     <input type="hidden" id="vId">
     <div class="grid-2">
@@ -232,25 +234,25 @@
     <div class="field"><label>Link Google Maps</label><input id="vMaps" placeholder="https://maps.app.goo.gl/..."></div>
     <div class="field"><label>Fasilitas (Pisahkan koma)</label><input id="vFacilities" placeholder="Parkir luas, Ruang VIP, Mushola"></div>
     <div class="field"><label>Deskripsi</label><textarea id="vDesc" rows="3"></textarea></div>
-    <label style="display:flex;align-items:center;gap:8px;margin-bottom:18px;cursor:pointer;">
-      <input id="vRec" type="checkbox" style="width:auto;"> Jadikan Rekomendasi Utama di Halaman Depan
+    <label class="checkbox-label mb-18">
+      <input id="vRec" type="checkbox"> Jadikan Rekomendasi Utama di Halaman Depan
     </label>
-    <div style="display:flex;justify-content:space-between;gap:10px;">
-      <button id="vDeleteBtn" class="btn danger hidden" onclick="deleteVenue()">Hapus Venue</button>
-      <div style="display:flex;gap:8px;margin-left:auto;">
-        <button class="btn" onclick="closeVenueModal()">Batal</button>
-        <button class="btn primary" onclick="saveVenue()">Simpan Venue</button>
+    <div class="flex-between">
+      <button type="button" id="vDeleteBtn" class="btn danger hidden">Hapus Venue</button>
+      <div class="btn-group ml-auto">
+        <button type="button" class="btn" data-close-modal="venueModal">Batal</button>
+        <button type="button" class="btn primary" id="btnSaveVenue">Simpan Venue</button>
       </div>
     </div>
   </div>
 </div>
 
 <!-- MODAL LEAD -->
-<div id="leadModal" class="modal-backdrop hidden" onclick="if(event.target===this) closeLeadModal()">
+<div id="leadModal" class="modal-backdrop hidden">
   <div class="modal-box">
     <div class="card-header">
       <h2 id="lModalTitle">Kelola Lead</h2>
-      <button class="btn sm" onclick="closeLeadModal()">✕</button>
+      <button type="button" class="btn sm" data-close-modal="leadModal">✕</button>
     </div>
     <input type="hidden" id="lId">
     <div class="grid-2">
@@ -284,15 +286,15 @@
       </div>
     </div>
     <div class="field"><label>Catatan Admin</label><textarea id="lNotes" rows="3"></textarea></div>
-    <div style="display:flex;justify-content:flex-end;gap:8px;">
-      <button class="btn" onclick="closeLeadModal()">Batal</button>
-      <button class="btn primary" onclick="saveLead()">Simpan Lead</button>
+    <div class="btn-group justify-end">
+      <button type="button" class="btn" data-close-modal="leadModal">Batal</button>
+      <button type="button" class="btn primary" id="btnSaveLead">Simpan Lead</button>
     </div>
   </div>
 </div>
 
 <div id="toast" class="toast hidden"></div>
 
-<script src="app.js"></script>
+<script src="./app.js?v=2"></script>
 </body>
 </html>

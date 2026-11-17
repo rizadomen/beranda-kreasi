@@ -1,13 +1,22 @@
 :root {
-  --bg: #090d16;
-  --card: #121929;
-  --border: #1e293b;
-  --text: #f1f5f9;
-  --muted: #94a3b8;
-  --cyan: #38bdf8;
-  --success: #22c55e;
-  --danger: #ef4444;
-}
+      --primary: #0ea5e9;
+      --primary-dark: #0284c7;
+      --bg-color: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+      --radius: 12px;
+    }
+
+    /* KODE TAMBAHAN UNTUK DARK MODE */
+    [data-theme="dark"] {
+      --bg-color: #0b0f19;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+    }
 
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
 body { background: var(--bg); color: var(--text); min-height: 100vh; }

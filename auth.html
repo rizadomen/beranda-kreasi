@@ -52,6 +52,20 @@
         Belum punya akun? <a href="#" id="switchToRegister" style="color: var(--cyan); font-weight: 600; text-decoration: none;">Daftar baru</a>
       </p>
     </div>
+    <!-- FORM LUPA PASSWORD -->
+    <div id="forgotFormView" class="hidden">
+      <p style="color: var(--muted); font-size: 13px; margin-bottom: 16px; text-align: center;">
+        Masukkan email terdaftar Anda. Kami akan mengirimkan instruksi pemulihan atau tautan reset password.
+      </p>
+      <div class="field" style="margin-bottom: 18px;">
+        <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 6px;">Email Akun</label>
+        <input id="forgotEmail" type="email" placeholder="email@domain.com" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text);">
+      </div>
+      <button type="button" class="btn primary w-full" id="btnSubmitForgot" style="width: 100%; padding: 12px; font-weight: 600; cursor: pointer;">Kirim Instruksi Reset</button>
+      <p style="text-align: center; margin-top: 16px; font-size: 13px; color: var(--muted);">
+        Ingat password kembali? <a href="#" id="backToLoginFromForgot" style="color: var(--cyan); font-weight: 600; text-decoration: none;">Masuk di sini</a>
+      </p>
+    </div>
 
     <!-- FORM REGISTER MANUAL -->
     <div id="registerFormView" class="hidden">
@@ -201,6 +215,50 @@
         }
       });
     });
+
+    // Klik link Lupa Password
+      $('linkForgot').addEventListener('click', (e) => {
+        e.preventDefault();
+        $('authTitle').textContent = 'Pemulihan Password';
+        $('loginFormView').classList.add('hidden');
+        $('registerFormView').classList.add('hidden');
+        $('forgotFormView').classList.remove('hidden');
+      });
+
+      // Kembali dari Lupa Password ke Login
+      $('backToLoginFromForgot').addEventListener('click', (e) => {
+        e.preventDefault();
+        $('authTitle').textContent = 'Masuk ke Portal Klien';
+        $('forgotFormView').classList.add('hidden');
+        $('loginFormView').classList.remove('hidden');
+      });
+
+      // Submit Permintaan Reset Password
+      $('btnSubmitForgot').addEventListener('click', async () => {
+        const btn = $('btnSubmitForgot');
+        const email = $('forgotEmail').value.trim();
+
+        if (!email) return toast('Masukkan email terdaftar Anda!', true);
+
+        btn.textContent = 'Mengirim...';
+        btn.disabled = true;
+
+        try {
+          const res = await api('requestPasswordReset', { email });
+          toast(res.message || 'Instruksi reset telah dikirim.');
+          $('forgotEmail').value = '';
+          setTimeout(() => {
+            $('authTitle').textContent = 'Masuk ke Portal Klien';
+            $('forgotFormView').classList.add('hidden');
+            $('loginFormView').classList.remove('hidden');
+          }, 2000);
+        } catch (err) {
+          toast(err.message, true);
+        } finally {
+          btn.textContent = 'Kirim Instruksi Reset';
+          btn.disabled = false;
+        }
+      });
   </script>
 </body>
 </html>

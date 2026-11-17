@@ -7,6 +7,7 @@
 
   function toast(msg, isErr = false) {
     const t = $('toast');
+    if (!t) return;
     t.textContent = msg;
     t.className = 'toast' + (isErr ? ' err' : '');
     setTimeout(() => t.classList.add('hidden'), 3500);
@@ -30,7 +31,7 @@
     document.querySelectorAll('.nav-btn').forEach((b) => {
       const isMatch = b.dataset.tab === tab;
       b.classList.toggle('active', isMatch);
-      if (isMatch) {
+      if (isMatch && $('pageTitle')) {
         $('pageTitle').textContent = b.textContent.replace(/^[^\w]+/, '').trim();
       }
     });
@@ -47,16 +48,20 @@
     const out = $('healthOutput');
     const badge = $('apiBadge');
     try {
-      out.textContent = 'Menghubungi Google Apps Script...';
+      if (out) out.textContent = 'Menghubungi Google Apps Script...';
       const res = await api('health');
-      out.textContent = JSON.stringify(res, null, 2);
-      badge.textContent = '● TERHUBUNG KE SHEETS';
-      badge.className = 'status-pill online';
+      if (out) out.textContent = JSON.stringify(res, null, 2);
+      if (badge) {
+        badge.textContent = '● TERHUBUNG KE SHEETS';
+        badge.className = 'status-pill online';
+      }
       toast('Backend terhubung!');
     } catch (e) {
-      out.textContent = 'ERROR KONEKSI:\n' + e.message;
-      badge.textContent = '● TERPUTUS';
-      badge.className = 'status-pill offline';
+      if (out) out.textContent = 'ERROR KONEKSI:\n' + e.message;
+      if (badge) {
+        badge.textContent = '● TERPUTUS';
+        badge.className = 'status-pill offline';
+      }
       toast('Gagal terhubung ke backend', true);
     }
   }
@@ -73,24 +78,26 @@
       const res = await api('listVenues');
       if (res.status !== 'BERHASIL') throw new Error(res.message || 'Gagal memuat venue');
       venuesData = res.venues || [];
-      $('statVenues').textContent = venuesData.length;
+      if ($('statVenues')) $('statVenues').textContent = venuesData.length;
       renderVenues();
 
       const opts = '<option value="">-- Pilih Venue --</option>' +
         venuesData.map((v) => `<option value="${v.ID_VENUE}">${v.NAMA_VENUE} (${v.KOTA})</option>`).join('');
-      $('mediaVenueSelect').innerHTML = opts;
-      $('lVenue').innerHTML = opts;
+      if ($('mediaVenueSelect')) $('mediaVenueSelect').innerHTML = opts;
+      if ($('lVenue')) $('lVenue').innerHTML = opts;
     } catch (e) {
       toast(e.message, true);
     }
   }
 
   function renderVenues() {
-    const q = ($('venueSearch').value || '').toLowerCase();
+    const searchEl = $('venueSearch');
+    const q = searchEl ? searchEl.value.toLowerCase() : '';
     const list = venuesData.filter((v) =>
       String(v.NAMA_VENUE + v.KOTA + v.ID_VENUE).toLowerCase().includes(q)
     );
     const box = $('venuesContainer');
+    if (!box) return;
     if (!list.length) {
       box.className = 'empty';
       box.textContent = 'Tidak ada data venue.';
@@ -116,63 +123,63 @@
   }
 
   function openVenueModal(v = null) {
-    $('vModalTitle').textContent = v ? 'Edit Venue' : 'Tambah Venue Baru';
-    $('vId').value = v ? v.ID_VENUE : '';
-    $('vName').value = v ? (v.NAMA_VENUE || '') : '';
-    $('vCity').value = v ? (v.KOTA || '') : '';
-    $('vAddress').value = v ? (v.ALAMAT || '') : '';
-    $('vType').value = v ? (v.JENIS_VENUE || 'Wedding Hall') : 'Wedding Hall';
-    $('vFeature').value = v ? (v.FITUR_VENUE || 'Indoor') : 'Indoor';
-    $('vStatus').value = v ? (v.STATUS || 'AKTIF') : 'AKTIF';
-    $('vCap').value = v ? (v.KAPASITAS || '') : '';
-    $('vContact').value = v ? (v.KONTAK || '') : '';
-    $('vMaps').value = v ? (v.GOOGLE_MAPS_URL || '') : '';
-    $('vFacilities').value = v ? (v.FASILITAS || '') : '';
-    $('vDesc').value = v ? (v.DESKRIPSI || '') : '';
-    $('vRec').checked = v ? Number(v.REKOMENDASI_HOME) === 1 : false;
+    if ($('vModalTitle')) $('vModalTitle').textContent = v ? 'Edit Venue' : 'Tambah Venue Baru';
+    if ($('vId')) $('vId').value = v ? v.ID_VENUE : '';
+    if ($('vName')) $('vName').value = v ? (v.NAMA_VENUE || '') : '';
+    if ($('vCity')) $('vCity').value = v ? (v.KOTA || '') : '';
+    if ($('vAddress')) $('vAddress').value = v ? (v.ALAMAT || '') : '';
+    if ($('vType')) $('vType').value = v ? (v.JENIS_VENUE || 'Wedding Hall') : 'Wedding Hall';
+    if ($('vFeature')) $('vFeature').value = v ? (v.FITUR_VENUE || 'Indoor') : 'Indoor';
+    if ($('vStatus')) $('vStatus').value = v ? (v.STATUS || 'AKTIF') : 'AKTIF';
+    if ($('vCap')) $('vCap').value = v ? (v.KAPASITAS || '') : '';
+    if ($('vContact')) $('vContact').value = v ? (v.KONTAK || '') : '';
+    if ($('vMaps')) $('vMaps').value = v ? (v.GOOGLE_MAPS_URL || '') : '';
+    if ($('vFacilities')) $('vFacilities').value = v ? (v.FASILITAS || '') : '';
+    if ($('vDesc')) $('vDesc').value = v ? (v.DESKRIPSI || '') : '';
+    if ($('vRec')) $('vRec').checked = v ? Number(v.REKOMENDASI_HOME) === 1 : false;
 
     try {
       const p = v ? JSON.parse(v.HARGA_INFO || '{}') : {};
-      $('vPrice').value = p.amount || '';
-      $('vPriceGuests').value = p.guests || '';
-      $('vPriceNote').value = p.note || '';
+      if ($('vPrice')) $('vPrice').value = p.amount || '';
+      if ($('vPriceGuests')) $('vPriceGuests').value = p.guests || '';
+      if ($('vPriceNote')) $('vPriceNote').value = p.note || '';
     } catch (_) {
-      $('vPrice').value = '';
-      $('vPriceGuests').value = '';
-      $('vPriceNote').value = '';
+      if ($('vPrice')) $('vPrice').value = '';
+      if ($('vPriceGuests')) $('vPriceGuests').value = '';
+      if ($('vPriceNote')) $('vPriceNote').value = '';
     }
 
-    $('vDeleteBtn').classList.toggle('hidden', !v);
-    $('venueModal').classList.remove('hidden');
+    if ($('vDeleteBtn')) $('vDeleteBtn').classList.toggle('hidden', !v);
+    if ($('venueModal')) $('venueModal').classList.remove('hidden');
   }
 
   async function saveVenue() {
     const venue = {
-      id: $('vId').value,
-      name: $('vName').value.trim(),
-      city: $('vCity').value.trim(),
-      address: $('vAddress').value.trim(),
-      venueType: $('vType').value,
-      venueFeature: $('vFeature').value,
-      status: $('vStatus').value,
-      capacity: $('vCap').value,
+      id: $('vId') ? $('vId').value : '',
+      name: $('vName') ? $('vName').value.trim() : '',
+      city: $('vCity') ? $('vCity').value.trim() : '',
+      address: $('vAddress') ? $('vAddress').value.trim() : '',
+      venueType: $('vType') ? $('vType').value : '',
+      venueFeature: $('vFeature') ? $('vFeature').value : '',
+      status: $('vStatus') ? $('vStatus').value : 'AKTIF',
+      capacity: $('vCap') ? $('vCap').value : '',
       priceInfo: JSON.stringify({
-        amount: $('vPrice').value ? Number($('vPrice').value) : '',
-        guests: $('vPriceGuests').value ? Number($('vPriceGuests').value) : '',
-        note: $('vPriceNote').value.trim()
+        amount: $('vPrice') && $('vPrice').value ? Number($('vPrice').value) : '',
+        guests: $('vPriceGuests') && $('vPriceGuests').value ? Number($('vPriceGuests').value) : '',
+        note: $('vPriceNote') ? $('vPriceNote').value.trim() : ''
       }),
-      contact: $('vContact').value.trim(),
-      googleMapsUrl: $('vMaps').value.trim(),
-      facilities: $('vFacilities').value.trim(),
-      description: $('vDesc').value.trim(),
-      isHomeRecommended: $('vRec').checked
+      contact: $('vContact') ? $('vContact').value.trim() : '',
+      googleMapsUrl: $('vMaps') ? $('vMaps').value.trim() : '',
+      facilities: $('vFacilities') ? $('vFacilities').value.trim() : '',
+      description: $('vDesc') ? $('vDesc').value.trim() : '',
+      isHomeRecommended: $('vRec') ? $('vRec').checked : false
     };
     if (!venue.name || !venue.city) return toast('Nama & Kota wajib diisi!', true);
     try {
       const res = await api('saveVenue', { venue });
       if (res.status !== 'BERHASIL') throw new Error(res.message);
       toast(res.message);
-      $('venueModal').classList.add('hidden');
+      if ($('venueModal')) $('venueModal').classList.add('hidden');
       loadVenues();
     } catch (e) {
       toast(e.message, true);
@@ -180,13 +187,13 @@
   }
 
   async function deleteVenue() {
-    const id = $('vId').value;
+    const id = $('vId') ? $('vId').value : '';
     if (!id || !confirm('Hapus permanen venue ini?')) return;
     try {
       const res = await api('deleteVenue', { venueId: id });
       if (res.status !== 'BERHASIL') throw new Error(res.message);
       toast(res.message);
-      $('venueModal').classList.add('hidden');
+      if ($('venueModal')) $('venueModal').classList.add('hidden');
       loadVenues();
     } catch (e) {
       toast(e.message, true);
@@ -195,8 +202,10 @@
 
   // --- MEDIA ---
   async function loadMedia() {
-    const venueId = $('mediaVenueSelect').value;
+    const selectEl = $('mediaVenueSelect');
+    const venueId = selectEl ? selectEl.value : '';
     const box = $('mediaContainer');
+    if (!box) return;
     if (!venueId) {
       box.className = 'empty';
       box.textContent = 'Pilih venue di atas.';
@@ -230,18 +239,18 @@
   }
 
   async function saveMediaUrl() {
-    const venueId = $('mediaVenueSelect').value;
-    const url = $('mediaUrl').value.trim();
-    const name = $('mediaName').value.trim() || 'Foto Venue';
-    const isCover = $('mediaIsCover').checked;
+    const venueId = $('mediaVenueSelect') ? $('mediaVenueSelect').value : '';
+    const url = $('mediaUrl') ? $('mediaUrl').value.trim() : '';
+    const name = $('mediaName') && $('mediaName').value.trim() ? $('mediaName').value.trim() : 'Foto Venue';
+    const isCover = $('mediaIsCover') ? $('mediaIsCover').checked : false;
     if (!venueId || !url) return toast('Pilih venue dan isi URL foto!', true);
     try {
       const res = await api('addMediaUrl', { venueId, url, name, isCover });
       if (res.status !== 'BERHASIL') throw new Error(res.message);
       toast(res.message);
-      $('mediaUrl').value = '';
-      $('mediaName').value = '';
-      $('mediaIsCover').checked = false;
+      if ($('mediaUrl')) $('mediaUrl').value = '';
+      if ($('mediaName')) $('mediaName').value = '';
+      if ($('mediaIsCover')) $('mediaIsCover').checked = false;
       loadMedia();
     } catch (e) {
       toast(e.message, true);
@@ -253,8 +262,9 @@
     try {
       const res = await api('listLeads');
       leadsData = res.leads || [];
-      $('statLeads').textContent = leadsData.length;
+      if ($('statLeads')) $('statLeads').textContent = leadsData.length;
       const box = $('leadsContainer');
+      if (!box) return;
       if (!leadsData.length) {
         box.className = 'empty';
         box.textContent = 'Belum ada leads.';
@@ -282,43 +292,43 @@
   }
 
   function openLeadModal(l = null) {
-    $('lModalTitle').textContent = l ? 'Update Lead' : 'Tambah Lead Manual';
-    $('lId').value = l ? l.ID_LEAD : '';
-    $('lName').value = l ? (l.NAMA || '') : '';
-    $('lWa').value = l ? (l.WHATSAPP || '') : '';
-    $('lVenue').value = l ? (l.ID_VENUE || '') : '';
-    $('lStatus').value = l ? (l.STATUS || 'BARU') : 'BARU';
-    $('lSurveyDate').value = l ? (l.TANGGAL_SURVEI || '') : '';
-    $('lSurveyTime').value = l ? (l.WAKTU_SURVEI || '') : '';
-    $('lSurveyStatus').value = l ? (l.STATUS_SURVEI || 'BELUM_DIJADWALKAN') : 'BELUM_DIJADWALKAN';
-    $('lNotes').value = l ? (l.CATATAN_ADMIN || '') : '';
-    $('leadModal').classList.remove('hidden');
+    if ($('lModalTitle')) $('lModalTitle').textContent = l ? 'Update Lead' : 'Tambah Lead Manual';
+    if ($('lId')) $('lId').value = l ? l.ID_LEAD : '';
+    if ($('lName')) $('lName').value = l ? (l.NAMA || '') : '';
+    if ($('lWa')) $('lWa').value = l ? (l.WHATSAPP || '') : '';
+    if ($('lVenue')) $('lVenue').value = l ? (l.ID_VENUE || '') : '';
+    if ($('lStatus')) $('lStatus').value = l ? (l.STATUS || 'BARU') : 'BARU';
+    if ($('lSurveyDate')) $('lSurveyDate').value = l ? (l.TANGGAL_SURVEI || '') : '';
+    if ($('lSurveyTime')) $('lSurveyTime').value = l ? (l.WAKTU_SURVEI || '') : '';
+    if ($('lSurveyStatus')) $('lSurveyStatus').value = l ? (l.STATUS_SURVEI || 'BELUM_DIJADWALKAN') : 'BELUM_DIJADWALKAN';
+    if ($('lNotes')) $('lNotes').value = l ? (l.CATATAN_ADMIN || '') : '';
+    if ($('leadModal')) $('leadModal').classList.remove('hidden');
   }
 
   async function saveLead() {
-    const id = $('lId').value;
+    const id = $('lId') ? $('lId').value : '';
     try {
       if (id) {
         await api('updateLead', {
           lead: {
             leadId: id,
-            status: $('lStatus').value,
-            notes: $('lNotes').value,
-            surveyDate: $('lSurveyDate').value,
-            surveyTime: $('lSurveyTime').value,
-            surveyStatus: $('lSurveyStatus').value
+            status: $('lStatus') ? $('lStatus').value : 'BARU',
+            notes: $('lNotes') ? $('lNotes').value : '',
+            surveyDate: $('lSurveyDate') ? $('lSurveyDate').value : '',
+            surveyTime: $('lSurveyTime') ? $('lSurveyTime').value : '',
+            surveyStatus: $('lSurveyStatus') ? $('lSurveyStatus').value : ''
           }
         });
       } else {
         await api('createLead', {
-          name: $('lName').value,
-          whatsapp: $('lWa').value,
-          venueId: $('lVenue').value,
-          message: $('lNotes').value
+          name: $('lName') ? $('lName').value : '',
+          whatsapp: $('lWa') ? $('lWa').value : '',
+          venueId: $('lVenue') ? $('lVenue').value : '',
+          message: $('lNotes') ? $('lNotes').value : ''
         });
       }
       toast('Lead disimpan!');
-      $('leadModal').classList.add('hidden');
+      if ($('leadModal')) $('leadModal').classList.add('hidden');
       loadLeads();
     } catch (e) {
       toast(e.message, true);
@@ -330,8 +340,9 @@
     try {
       const res = await api('listClients');
       const list = res.clients || [];
-      $('statClients').textContent = list.length;
+      if ($('statClients')) $('statClients').textContent = list.length;
       const box = $('clientsContainer');
+      if (!box) return;
       if (!list.length) {
         box.className = 'empty';
         box.textContent = 'Belum ada klien.';
@@ -346,14 +357,14 @@
   }
 
   async function addClient() {
-    const name = $('newClientName').value.trim();
-    const email = $('newClientEmail').value.trim();
+    const name = $('newClientName') ? $('newClientName').value.trim() : '';
+    const email = $('newClientEmail') ? $('newClientEmail').value.trim() : '';
     if (!name || !email) return toast('Nama & email wajib diisi!', true);
     try {
       await api('createClient', { name, email });
       toast('Akun klien dibuat!');
-      $('newClientName').value = '';
-      $('newClientEmail').value = '';
+      if ($('newClientName')) $('newClientName').value = '';
+      if ($('newClientEmail')) $('newClientEmail').value = '';
       loadClients();
     } catch (e) {
       toast(e.message, true);
@@ -364,9 +375,9 @@
     try {
       const res = await api('getSettings');
       const map = Object.fromEntries((res.settings || []).map((s) => [s.key, s.value]));
-      $('setWa').value = map.ADMIN_WHATSAPP || '';
-      $('setBanner').value = map.PORTAL_BANNER_URL || '';
-      $('setPopup').value = map.PORTAL_POPUP_URL || '';
+      if ($('setWa')) $('setWa').value = map.ADMIN_WHATSAPP || '';
+      if ($('setBanner')) $('setBanner').value = map.PORTAL_BANNER_URL || '';
+      if ($('setPopup')) $('setPopup').value = map.PORTAL_POPUP_URL || '';
     } catch (e) {
       toast(e.message, true);
     }
@@ -374,9 +385,9 @@
 
   async function saveSettings() {
     try {
-      await api('setSetting', { key: 'ADMIN_WHATSAPP', value: $('setWa').value.trim() });
-      await api('setSetting', { key: 'PORTAL_BANNER_URL', value: $('setBanner').value.trim() });
-      await api('setSetting', { key: 'PORTAL_POPUP_URL', value: $('setPopup').value.trim() });
+      if ($('setWa')) await api('setSetting', { key: 'ADMIN_WHATSAPP', value: $('setWa').value.trim() });
+      if ($('setBanner')) await api('setSetting', { key: 'PORTAL_BANNER_URL', value: $('setBanner').value.trim() });
+      if ($('setPopup')) await api('setSetting', { key: 'PORTAL_POPUP_URL', value: $('setPopup').value.trim() });
       toast('Pengaturan portal disimpan!');
     } catch (e) {
       toast(e.message, true);
@@ -388,6 +399,7 @@
       const res = await api('listActivity');
       const list = res.activity || [];
       const box = $('activityContainer');
+      if (!box) return;
       if (!list.length) {
         box.className = 'empty';
         box.textContent = 'Belum ada log.';
@@ -401,45 +413,50 @@
     }
   }
 
-  // --- EVENT BINDINGS ---
+  // --- EVENT BINDINGS (AMAN) ---
   document.addEventListener('DOMContentLoaded', () => {
-    // Navigasi Sidebar
     document.querySelectorAll('.nav-btn').forEach((btn) => {
       btn.addEventListener('click', () => switchTab(btn.dataset.tab));
     });
 
-    // Tombol Statis
-    $('btnCheckHealth').addEventListener('click', checkHealth);
-    $('btnReloadVenues').addEventListener('click', loadVenues);
-    $('btnNewVenue').addEventListener('click', () => openVenueModal(null));
-    $('venueSearch').addEventListener('input', renderVenues);
-    $('btnSaveVenue').addEventListener('click', saveVenue);
-    $('vDeleteBtn').addEventListener('click', deleteVenue);
+    const bindClick = (id, fn) => {
+      const el = $(id);
+      if (el) el.addEventListener('click', fn);
+    };
 
-    $('mediaVenueSelect').addEventListener('change', loadMedia);
-    $('btnSaveMedia').addEventListener('click', saveMediaUrl);
-    $('btnReloadMedia').addEventListener('click', loadMedia);
+    bindClick('btnCheckHealth', checkHealth);
+    bindClick('btnReloadVenues', loadVenues);
+    bindClick('btnNewVenue', () => openVenueModal(null));
+    if ($('venueSearch')) $('venueSearch').addEventListener('input', renderVenues);
+    bindClick('btnSaveVenue', saveVenue);
+    bindClick('vDeleteBtn', deleteVenue);
 
-    $('btnReloadLeads').addEventListener('click', loadLeads);
-    $('btnNewLead').addEventListener('click', () => openLeadModal(null));
-    $('btnSaveLead').addEventListener('click', saveLead);
+    if ($('mediaVenueSelect')) $('mediaVenueSelect').addEventListener('change', loadMedia);
+    bindClick('btnSaveMedia', saveMediaUrl);
+    bindClick('btnReloadMedia', loadMedia);
 
-    $('btnAddClient').addEventListener('click', addClient);
-    $('btnReloadClients').addEventListener('click', loadClients);
-    $('btnSaveSettings').addEventListener('click', saveSettings);
-    $('btnReloadActivity').addEventListener('click', loadActivity);
+    bindClick('btnReloadLeads', loadLeads);
+    bindClick('btnNewLead', () => openLeadModal(null));
+    bindClick('btnSaveLead', saveLead);
 
-    // Tutup Modal
+    bindClick('btnAddClient', addClient);
+    bindClick('btnReloadClients', loadClients);
+    bindClick('btnSaveSettings', saveSettings);
+    bindClick('btnReloadActivity', loadActivity);
+
     document.querySelectorAll('[data-close-modal]').forEach((btn) => {
-      btn.addEventListener('click', () => $(btn.dataset.closeModal).classList.add('hidden'));
+      btn.addEventListener('click', () => {
+        const modal = $(btn.dataset.closeModal);
+        if (modal) modal.classList.add('hidden');
+      });
     });
+
     document.querySelectorAll('.modal-backdrop').forEach((backdrop) => {
       backdrop.addEventListener('click', (e) => {
         if (e.target === backdrop) backdrop.classList.add('hidden');
       });
     });
 
-    // Delegasi Klik Dinamis (Venue Cards, Media, Leads)
     document.body.addEventListener('click', async (e) => {
       const editVenueId = e.target.dataset.editVenue;
       if (editVenueId) {
@@ -451,7 +468,7 @@
       if (mediaVenueId) {
         switchTab('media');
         setTimeout(() => {
-          $('mediaVenueSelect').value = mediaVenueId;
+          if ($('mediaVenueSelect')) $('mediaVenueSelect').value = mediaVenueId;
           loadMedia();
         }, 250);
       }
@@ -481,7 +498,7 @@
       }
     });
 
-    // Jalankan inisialisasi langsung saat halaman siap
+    // Inisialisasi awal
     checkHealth();
     loadVenues();
     loadClients();

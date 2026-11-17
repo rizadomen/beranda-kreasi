@@ -75,7 +75,50 @@ body {
 .section-title-wrap h2 { font-size: 20px; font-weight: 800; color: var(--text); }
 .section-title-wrap p { color: var(--muted); font-size: 14px; margin-top: 4px; }
 
+/* --- STYLING KARTU & COVER VENUE (SOLUSI FOTO KOSONG / TIDAK ADA) --- */
 .venue-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+
+.venue-item {
+  background: var(--surface); 
+  border: 1px solid var(--border);
+  border-radius: var(--radius); 
+  overflow: hidden; 
+  display: flex; 
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.venue-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+}
+
+/* Jika foto venue ada */
+.venue-cover { 
+  width: 100%; 
+  aspect-ratio: 16/9; 
+  object-fit: cover; 
+  background: var(--surface-2); 
+  display: block; 
+}
+
+/* Jika foto venue kosong / tidak ada (mencegah layout hancur) */
+.venue-cover-empty {
+  width: 100%; 
+  aspect-ratio: 16/9; 
+  display: grid; 
+  place-items: center;
+  background: var(--surface-2); 
+  color: var(--muted); 
+  font-size: 13px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+
+.venue-body { padding: 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.venue-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.venue-meta { font-size: 13px; color: var(--muted); }
+.venue-actions { display: flex; gap: 8px; margin-top: auto; padding-top: 14px; }
+.venue-actions .btn { flex: 1; }
 
 /* Tombol dan Komponen Lainnya */
 .btn {

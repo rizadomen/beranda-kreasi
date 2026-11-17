@@ -258,10 +258,10 @@
           return;
         }
 
-        // Ambil nomor WA admin dari pengaturan web (Admin Panel)
+        // Membaca key ADMIN_WHATSAPP dari sheet PENGATURAN
         const settingsData = resSettings.settings || resSettings.data || resSettings;
         if (settingsData) {
-          const adminWa = settingsData.ADMIN_WA || settingsData.admin_wa || settingsData.WHATSAPP_ADMIN || settingsData.whatsapp_admin;
+          const adminWa = settingsData.ADMIN_WHATSAPP || settingsData.admin_whatsapp || settingsData.ADMIN_WA || settingsData.admin_wa;
           if (adminWa) {
             globalAdminPhone = String(adminWa).replace(/\D/g, '').replace(/^0/, '62');
           }
@@ -409,7 +409,7 @@
         toast('Data berhasil dicatat ke CRM/Spreadsheet!');
         closeTanyaModal();
 
-        // 2. Buka WhatsApp Admin pusat (diatur via pengaturan admin) atau nomor venue
+        // 2. Buka WhatsApp Admin pusat (diambil dari sheet PENGATURAN)
         let targetWa = globalAdminPhone;
         if (venueData && venueData.KONTAK && String(venueData.KONTAK).trim().length > 5) {
           let cleanKontak = String(venueData.KONTAK).replace(/\D/g, '').replace(/^0/, '62');

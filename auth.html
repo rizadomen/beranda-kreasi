@@ -54,19 +54,27 @@
     </div>
     <!-- FORM LUPA PASSWORD -->
     <div id="forgotFormView" class="hidden">
-      <p style="color: var(--muted); font-size: 13px; margin-bottom: 16px; text-align: center;">
-        Masukkan email terdaftar Anda. Kami akan mengirimkan instruksi pemulihan atau tautan reset password.
+      <p id="forgotInstruction" style="color: var(--muted); font-size: 13px; margin-bottom: 16px; text-align: center;">
+        Masukkan email terdaftar Anda untuk memulihkan akses akun.
       </p>
-      <div class="field" style="margin-bottom: 18px;">
+      
+      <!-- Input Email -->
+      <div class="field" id="forgotEmailField" style="margin-bottom: 18px;">
         <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 6px;">Email Akun</label>
         <input id="forgotEmail" type="email" placeholder="email@domain.com" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text);">
       </div>
-      <button type="button" class="btn primary w-full" id="btnSubmitForgot" style="width: 100%; padding: 12px; font-weight: 600; cursor: pointer;">Kirim Instruksi Reset</button>
+
+      <!-- Input Password Baru (Awalnya Disembunyikan) -->
+      <div class="field hidden" id="newPasswordField" style="margin-bottom: 18px;">
+        <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 6px;">Buat Password Baru</label>
+        <input id="forgotNewPassword" type="password" placeholder="Minimal 6 karakter" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text);">
+      </div>
+
+      <button type="button" class="btn primary w-full" id="btnSubmitForgot" style="width: 100%; padding: 12px; font-weight: 600; cursor: pointer;">Cek Email</button>
       <p style="text-align: center; margin-top: 16px; font-size: 13px; color: var(--muted);">
         Ingat password kembali? <a href="#" id="backToLoginFromForgot" style="color: var(--cyan); font-weight: 600; text-decoration: none;">Masuk di sini</a>
       </p>
     </div>
-
     <!-- FORM REGISTER MANUAL -->
     <div id="registerFormView" class="hidden">
       <div class="field" style="margin-bottom: 14px;">
@@ -233,30 +241,69 @@
         $('loginFormView').classList.remove('hidden');
       });
 
-      // Submit Permintaan Reset Password
+      let resetEmailVerified = "";
+
+      // Submit Permintaan Reset Password / Ganti Password
       $('btnSubmitForgot').addEventListener('click', async () => {
         const btn = $('btnSubmitForgot');
-        const email = $('forgotEmail').value.trim();
+        
+        if (!resetEmailVerified) {
+          // Tahap 1: Verifikasi Email
+          const email = $('forgotEmail').value.trim();
+          if (!email) return toast('Masukkan email terdaftar Anda!', true);
 
-        if (!email) return toast('Masukkan email terdaftar Anda!', true);
+          btn.textContent = 'Memeriksa email...';
+          btn.disabled = true;
 
-        btn.textContent = 'Mengirim...';
-        btn.disabled = true;
+          try {
+            const res = await api('requestPasswordReset', { email });
+            if (res.status !== 'BERHASIL') throw new Error(res.message);
 
-        try {
-          const res = await api('requestPasswordReset', { email });
-          toast(res.message || 'Instruksi reset telah dikirim.');
-          $('forgotEmail').value = '';
-          setTimeout(() => {
-            $('authTitle').textContent = 'Masuk ke Portal Klien';
-            $('forgotFormView').classList.add('hidden');
-            $('loginFormView').classList.remove('hidden');
-          }, 2000);
-        } catch (err) {
-          toast(err.message, true);
-        } finally {
-          btn.textContent = 'Kirim Instruksi Reset';
-          btn.disabled = false;
+            // Email ditemukan, tampilkan input password baru
+            resetEmailVerified = email;
+            $('forgotEmail').disabled = true;
+            $('forgotEmailField').classList.add('hidden');
+            $('newPasswordField').classList.remove('hidden');
+            $('forgotInstruction').textContent = 'Email terkonfirmasi! Silakan masukkan password baru Anda.';
+            btn.textContent = 'Simpan Password Baru';
+            toast('Email ditemukan! Masukkan password baru.');
+          } catch (err) {
+            toast(err.message, true);
+          } finally {
+            btn.disabled = false;
+            if (!resetEmailVerified) btn.textContent = 'Cek Email';
+          }
+        } else {
+          // Tahap 2: Simpan Password Baru
+          const newPassword = $('forgotNewPassword').value.trim();
+          if (!newPassword || newPassword.length < 6) return toast('Password minimal 6 karakter!', true);
+
+          btn.textContent = 'Menyimpan...';
+          btn.disabled = true;
+
+          try {
+            const res = await api('requestPasswordReset', { email: resetEmailVerified, newPassword });
+            if (res.status !== 'BERHASIL') throw new Error(res.message);
+
+            toast('Password berhasil diubah! Silakan login.');
+            setTimeout(() => {
+              // Reset state dan kembali ke form login
+              resetEmailVerified = "";
+              $('forgotEmail').value = '';
+              $('forgotNewPassword').value = '';
+              $('forgotEmail').disabled = false;
+              $('forgotEmailField').classList.remove('hidden');
+              $('newPasswordField').classList.add('hidden');
+              $('btnSubmitForgot').textContent = 'Cek Email';
+              $('authTitle').textContent = 'Masuk ke Portal Klien';
+              $('forgotFormView').classList.add('hidden');
+              $('loginFormView').classList.remove('hidden');
+            }, 1500);
+          } catch (err) {
+            toast(err.message, true);
+            btn.textContent = 'Simpan Password Baru';
+            btn.disabled = false;
+          }
         }
       });
   </script>

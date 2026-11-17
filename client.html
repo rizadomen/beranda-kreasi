@@ -242,18 +242,20 @@
         </div>
       </div>
     </div>
-    <!-- MODAL PAYWALL / GEMBOK BATASAN 3 VENUE -->
+    <!-- MODAL PAYWALL / GEMBOK -->
     <div id="paywallModal" class="modal-backdrop hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: grid; place-items: center; z-index: 9999;">
       <div class="modal-box" style="background: var(--surface); padding: 32px; border-radius: 16px; max-width: 400px; text-align: center; border: 1px solid var(--border);">
         <div style="font-size: 42px; margin-bottom: 12px;">🔒</div>
         <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px;">Akses Terkunci (Batas Kuota Habis)</h3>
         <p style="color: var(--muted); font-size: 13px; line-height: 1.5; margin-bottom: 24px;">
-          Anda telah menggunakan jatah melihat 3 venue gratis. Upgrade akun Anda ke status <strong>SUBSCRIBE</strong> untuk membuka akses tanpa batas ke seluruh venue eksklusif dan detail harga lengkap!
+          Anda telah menggunakan jatah melihat 3 venue gratis. Upgrade akun Anda ke status <strong>SUBSCRIBE</strong> untuk membuka akses tanpa batas!
         </p>
         <div style="display: flex; flex-direction: column; gap: 10px;">
+          <!-- Pastikan ID ini ada -->
           <button type="button" id="btnConfirmSubscribeWhatsApp" class="btn primary w-full" style="padding: 12px; font-weight: 600; cursor: pointer;">
             💬 Konfirmasi Upgrade via WhatsApp
           </button>
+          <!-- Pastikan ID ini ada -->
           <button type="button" id="btnClosePaywall" class="btn w-full" style="padding: 10px; cursor: pointer; background: transparent; border: 1px solid var(--border); color: var(--text);">
             Tutup
           </button>

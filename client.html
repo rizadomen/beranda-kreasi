@@ -28,9 +28,9 @@
     .client-brand div strong { display: block; font-size: 15px; color: var(--text-main); }
     .client-brand div span { font-size: 11px; font-weight: 700; color: var(--primary); letter-spacing: 0.05em; }
 
-    /* Top Action Bar (Tabs & Location Button Sejajar) */
+    /* Top Action Bar */
     .top-action-bar { max-width: 1200px; width: 100%; margin: 24px auto 0; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
-    .client-tabs { display: flex; gap: 10px; border-bottom: none; padding-bottom: 0; overflow-x: auto; }
+    .client-tabs { display: flex; gap: 10px; overflow-x: auto; }
     .c-tab-btn { background: #ffffff; border: 1px solid var(--border); font-size: 14px; font-weight: 700; color: var(--text-muted); cursor: pointer; padding: 10px 18px; border-radius: 8px; transition: all 0.2s; white-space: nowrap; }
     .c-tab-btn:hover { background: #e2e8f0; color: var(--text-main); }
     .c-tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25); }
@@ -39,15 +39,23 @@
     .client-main { max-width: 1200px; width: 100%; margin: 20px auto 40px; padding: 0 20px; flex-grow: 1; }
     .client-panel.hidden { display: none; }
 
-    /* Rapi Filter Panel (Grid 4 Kolom Terstruktur) */
-    .filter-panel { background: var(--card-bg); padding: 24px; border-radius: var(--radius); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; align-items: flex-end; }
+    /* Search Bar Khusus (Terpisah & Secukupnya) */
+    .search-box-container { background: var(--card-bg); padding: 16px 20px; border-radius: var(--radius); box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid var(--border); margin-bottom: 16px; display: flex; gap: 12px; align-items: center; }
+    .search-box-container input { flex-grow: 1; max-width: 450px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 600; outline: none; }
+    .search-box-container input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15); }
+
+    /* Filter Panel Rapih & Compact */
+    .filter-panel { background: var(--card-bg); padding: 20px; border-radius: var(--radius); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; align-items: flex-end; }
     .filter-group { display: flex; flex-direction: column; }
-    .filter-group.full-span { grid-column: 1 / -1; }
-    .filter-group label { display: block; font-size: 12px; font-weight: 800; margin-bottom: 6px; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.03em; }
-    .filter-group input, .filter-group select { width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: #fff; color: var(--text-main); font-weight: 600; outline: none; }
+    .filter-group label { display: block; font-size: 11px; font-weight: 800; margin-bottom: 5px; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.03em; }
+    .filter-group input, .filter-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; background: #fff; color: var(--text-main); font-weight: 600; outline: none; }
     .filter-group input:focus, .filter-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15); }
 
-    .filter-actions { grid-column: 1 / -1; display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px; border-top: 1px solid #e2e8f0; padding-top: 16px; }
+    /* Khusus Rentang Harga Sejajar (Min - Max) */
+    .price-range-wrapper { display: flex; gap: 8px; align-items: center; grid-column: span 2; }
+    @media(max-width: 768px) { .price-range-wrapper { grid-column: span 1; flex-direction: column; } }
+
+    .filter-actions { grid-column: 1 / -1; display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; border-top: 1px solid #e2e8f0; padding-top: 14px; }
 
     /* Venue Grid */
     .venue-grid-client { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
@@ -62,7 +70,7 @@
     .badge-tag { display: inline-block; padding: 4px 10px; font-size: 11px; font-weight: 700; background: #e2e8f0; color: #334155; border-radius: 6px; margin-right: 6px; margin-bottom: 12px; text-transform: uppercase; }
 
     /* Buttons */
-    .btn { padding: 10px 18px; font-size: 14px; font-weight: 700; border-radius: 8px; border: none; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; transition: background 0.2s; }
+    .btn { padding: 9px 16px; font-size: 13px; font-weight: 700; border-radius: 8px; border: none; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; transition: background 0.2s; }
     .btn.primary { background: var(--primary); color: #fff; }
     .btn.primary:hover { background: var(--primary-dark); }
     .btn.danger { background: #ef4444; color: #fff; }
@@ -101,15 +109,15 @@
     </div>
   </header>
 
-  <!-- TOP ACTION BAR: Tab Navigasi & Tombol Lokasi Terdekat Berjajar di Atas -->
+  <!-- TOP ACTION BAR -->
   <div class="top-action-bar">
     <div class="client-tabs">
-      <button type="button" class="c-tab-btn active" data-ctab="catalog">✨ Katalog & Pencarian Venue</button>
-      <button type="button" class="c-tab-btn" data-ctab="saved">❤️ Venue Disimpan (<span id="savedCount">0</span>)</button>
+      <button type="button" class="c-tab-btn active" data-ctab="catalog">✨ Katalog & Pencarian</button>
+      <button type="button" class="c-tab-btn" data-ctab="saved">❤️ Favorit (<span id="savedCount">0</span>)</button>
       <button type="button" class="c-tab-btn" data-ctab="account">📋 Profil Akun</button>
     </div>
     <div>
-      <button type="button" class="btn outline" onclick="sortByNearestLocation()" style="font-weight: 800; background: #fff;">📍 Urutkan Lokasi Terdekat (GPS)</button>
+      <button type="button" class="btn outline" onclick="sortByNearestLocation()" style="font-weight: 800; background: #fff;">📍 Lokasi Terdekat (GPS)</button>
     </div>
   </div>
 
@@ -119,22 +127,24 @@
     <!-- TAB 1: KATALOG & PENCARIAN -->
     <div id="ctab-catalog" class="client-panel">
       
-      <!-- PANEL FILTER TERSTRUKTUR & RAPI -->
-      <div class="filter-panel">
-        <div class="filter-group full-span">
-          <label>🔍 Smart Search (Nama Venue / Deskripsi)</label>
-          <input type="text" id="searchKeyword" placeholder="Ketik nama venue atau kata kunci fasilitas...">
-        </div>
+      <!-- SEARCH BAR TERPISAH (SECIKUPNYA) -->
+      <div class="search-box-container">
+        <input type="text" id="searchKeyword" placeholder="Cari nama venue atau kata kunci..." onkeydown="if(event.key === 'Enter') applyFilters()">
+        <button type="button" class="btn primary" onclick="applyFilters()">Cari</button>
+      </div>
 
+      <!-- PANEL FILTER RAPI & COMPACT -->
+      <div class="filter-panel">
+        
         <div class="filter-group">
-          <label>📍 Filter Kota</label>
+          <label>📍 Kota</label>
           <select id="filterKota">
             <option value="">Semua Kota</option>
           </select>
         </div>
 
         <div class="filter-group">
-          <label>🏙️ Filter Kecamatan / Area</label>
+          <label>🏙️ Kecamatan / Area</label>
           <select id="filterKecamatan">
             <option value="">Semua Kecamatan</option>
           </select>
@@ -151,7 +161,7 @@
         </div>
 
         <div class="filter-group">
-          <label>✨ Fitur Venue</label>
+          <label>✨ Fitur</label>
           <select id="filterFitur">
             <option value="">Semua Fitur</option>
             <option value="Indoor">Indoor</option>
@@ -160,45 +170,31 @@
           </select>
         </div>
 
-        <div class="filter-group">
-          <label>💰 Rentang Harga Minimum</label>
-          <select id="selectMinPrice" onchange="handlePriceSelect('min')" style="margin-bottom: 8px;">
-            <option value="">Pilih / Ketik Manual Di Bawah</option>
-            <option value="5000000">Rp 5.000.000</option>
-            <option value="10000000">Rp 10.000.000</option>
-            <option value="25000000">Rp 25.000.000</option>
-            <option value="50000000">Rp 50.000.000</option>
-            <option value="100000000">Rp 100.000.000</option>
-          </select>
-          <input type="text" id="filterMinPrice" placeholder="Atau ketik min (Rp)..." oninput="formatRupiahInput(this)">
+        <!-- RENTANG HARGA MIN - MAX SEJAJAR -->
+        <div class="filter-group price-range-wrapper">
+          <div style="flex: 1; width: 100%;">
+            <label>💰 Rentang Harga (Min - Max)</label>
+            <input type="text" id="filterMinPrice" placeholder="Harga Min (Rp)" oninput="formatRupiahInput(this)">
+          </div>
+          <div style="flex: 1; width: 100%; margin-top: 16px;">
+            <label style="visibility: hidden;">Max</label>
+            <input type="text" id="filterMaxPrice" placeholder="Harga Max (Rp)" oninput="formatRupiahInput(this)">
+          </div>
         </div>
 
-        <div class="filter-group">
-          <label>💰 Rentang Harga Maksimum</label>
-          <select id="selectMaxPrice" onchange="handlePriceSelect('max')" style="margin-bottom: 8px;">
-            <option value="">Pilih / Ketik Manual Di Bawah</option>
-            <option value="10000000">Rp 10.000.000</option>
-            <option value="25000000">Rp 25.000.000</option>
-            <option value="50000000">Rp 50.000.000</option>
-            <option value="100000000">Rp 100.000.000</option>
-            <option value="250000000">Rp 250.000.000</option>
-          </select>
-          <input type="text" id="filterMaxPrice" placeholder="Atau ketik maks (Rp)..." oninput="formatRupiahInput(this)">
-        </div>
-
-        <div class="filter-group full-span">
-          <label>📊 Urutkan Berdasarkan Harga</label>
+        <div class="filter-group" style="max-width: 220px;">
+          <label>📊 Urutkan Harga</label>
           <select id="sortPrice">
-            <option value="">Urutkan Standar</option>
-            <option value="cheap">Harga Termurah</option>
-            <option value="expensive">Harga Termahal</option>
+            <option value="">Standar</option>
+            <option value="cheap">Termurah</option>
+            <option value="expensive">Termahal</option>
           </select>
         </div>
 
-        <!-- Tombol Aksi Apply & Reset -->
+        <!-- Tombol Aksi Filter -->
         <div class="filter-actions">
-          <button type="button" class="btn outline" onclick="resetFilters()">Reset Filter</button>
-          <button type="button" class="btn primary" onclick="applyFilters()">🔍 Terapkan Filter (Cari)</button>
+          <button type="button" class="btn outline" onclick="resetFilters()">Reset</button>
+          <button type="button" class="btn primary" onclick="applyFilters()">Terapkan Filter</button>
         </div>
       </div>
 
@@ -303,14 +299,14 @@
         const res = await api('listVenues');
         allVenues = res.venues || res.data || [];
         
-        // 1. Populate Dropdown Kota Murni dari Kolom KOTA
+        // Populate Dropdown Kota
         const kotaSet = [...new Set(allVenues.map(v => v.KOTA || v.kota).filter(Boolean))];
         const kotaSelect = $('filterKota');
         if (kotaSelect) {
           kotaSelect.innerHTML = '<option value="">Semua Kota</option>' + kotaSet.map(k => `<option value="${k}">${k}</option>`).join('');
         }
 
-        // 2. Populate Dropdown Kecamatan
+        // Populate Dropdown Kecamatan
         const kecamatanSet = new Set();
         allVenues.forEach(v => {
           let alamatLengkap = v.KECAMATAN || v.kecamatan || v.ALAMAT || v.alamat || '';
@@ -404,26 +400,7 @@
       }
     }
 
-    // Sinkronisasi pilihan dropdown rentang harga ke input teks
-    function handlePriceSelect(type) {
-      if (type === 'min') {
-        const val = $('selectMinPrice').value;
-        if (val) {
-          $('filterMinPrice').value = Number(val).toLocaleString('id-ID');
-        } else {
-          $('filterMinPrice').value = '';
-        }
-      } else if (type === 'max') {
-        const val = $('selectMaxPrice').value;
-        if (val) {
-          $('filterMaxPrice').value = Number(val).toLocaleString('id-ID');
-        } else {
-          $('filterMaxPrice').value = '';
-        }
-      }
-    }
-
-    // Fungsi Utama Eksekusi Filter saat tombol Apply ditekan
+    // Fungsi Utama Eksekusi Filter saat tombol Apply atau Enter ditekan
     window.applyFilters = function() {
       const keyword = $('searchKeyword').value.toLowerCase().trim();
       const kota = $('filterKota').value;
@@ -480,7 +457,7 @@
         });
       }
 
-      toast(`Filter diterapkan: Menemukan ${filtered.length} venue.`);
+      toast(`Menampilkan ${filtered.length} venue.`);
       renderVenuesList(filtered);
     };
 
@@ -490,8 +467,6 @@
       $('filterKecamatan').value = '';
       $('filterJenis').value = '';
       $('filterFitur').value = '';
-      $('selectMinPrice').value = '';
-      $('selectMaxPrice').value = '';
       $('filterMinPrice').value = '';
       $('filterMaxPrice').value = '';
       $('sortPrice').value = '';

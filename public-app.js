@@ -28,7 +28,7 @@
 
   async function initPublicPortal() {
     try {
-      // 1. Ambil pengaturan banner & popup dari backend admin (Mendukung format Object/Array)
+      // 1. Ambil pengaturan banner & popup dengan aman (mendukung format object/array)
       const setRes = await api('getSettings').catch(() => ({}));
       let settingsMap = {};
       const rawSettings = setRes.settings || setRes.data || {};
@@ -70,7 +70,6 @@
         return;
       }
 
-      // Opsional: Jika lo mau memisahkan atau menandai mana venue rekomendasi di halaman utama
       box.className = 'venue-grid';
       box.innerHTML = venues.map(v => {
         const isRecommended = Number(v.REKOMENDASI_HOME || v.rekomendasi_home || 0) === 1;
@@ -154,7 +153,6 @@
         $('authModalTitle').textContent = 'Daftar Akun Baru';
         $('loginFormView').classList.add('hidden');
         $('registerFormView').classList.remove('hidden');
-        authModal.classList.add('hidden'); // Membuka auth modal
         authModal.classList.remove('hidden');
       });
     }

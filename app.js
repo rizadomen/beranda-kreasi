@@ -414,4 +414,77 @@
     $('btnNewVenue').addEventListener('click', () => openVenueModal(null));
     $('venueSearch').addEventListener('input', renderVenues);
     $('btnSaveVenue').addEventListener('click', saveVenue);
-    $('v
+    $('vDeleteBtn').addEventListener('click', deleteVenue);
+
+    $('mediaVenueSelect').addEventListener('change', loadMedia);
+    $('btnSaveMedia').addEventListener('click', saveMediaUrl);
+    $('btnReloadMedia').addEventListener('click', loadMedia);
+
+    $('btnReloadLeads').addEventListener('click', loadLeads);
+    $('btnNewLead').addEventListener('click', () => openLeadModal(null));
+    $('btnSaveLead').addEventListener('click', saveLead);
+
+    $('btnAddClient').addEventListener('click', addClient);
+    $('btnReloadClients').addEventListener('click', loadClients);
+    $('btnSaveSettings').addEventListener('click', saveSettings);
+    $('btnReloadActivity').addEventListener('click', loadActivity);
+
+    // Tutup Modal
+    document.querySelectorAll('[data-close-modal]').forEach((btn) => {
+      btn.addEventListener('click', () => $(btn.dataset.closeModal).classList.add('hidden'));
+    });
+    document.querySelectorAll('.modal-backdrop').forEach((backdrop) => {
+      backdrop.addEventListener('click', (e) => {
+        if (e.target === backdrop) backdrop.classList.add('hidden');
+      });
+    });
+
+    // Delegasi Klik Dinamis (Venue Cards, Media, Leads)
+    document.body.addEventListener('click', async (e) => {
+      const editVenueId = e.target.dataset.editVenue;
+      if (editVenueId) {
+        const v = venuesData.find((x) => x.ID_VENUE === editVenueId);
+        if (v) openVenueModal(v);
+      }
+
+      const mediaVenueId = e.target.dataset.mediaVenue;
+      if (mediaVenueId) {
+        switchTab('media');
+        setTimeout(() => {
+          $('mediaVenueSelect').value = mediaVenueId;
+          loadMedia();
+        }, 250);
+      }
+
+      const coverId = e.target.dataset.setCover;
+      if (coverId) {
+        try {
+          await api('setMediaCover', { mediaId: coverId });
+          toast('Cover diperbarui!');
+          loadMedia();
+        } catch (err) { toast(err.message, true); }
+      }
+
+      const delMediaId = e.target.dataset.delMedia;
+      if (delMediaId && confirm('Hapus foto ini dari galeri?')) {
+        try {
+          await api('archiveMedia', { mediaId: delMediaId });
+          toast('Foto dihapus.');
+          loadMedia();
+        } catch (err) { toast(err.message, true); }
+      }
+
+      const editLeadId = e.target.dataset.editLead;
+      if (editLeadId) {
+        const l = leadsData.find((x) => x.ID_LEAD === editLeadId);
+        if (l) openLeadModal(l);
+      }
+    });
+
+    // Jalankan inisialisasi langsung saat halaman siap
+    checkHealth();
+    loadVenues();
+    loadClients();
+    loadLeads();
+  });
+})();

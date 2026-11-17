@@ -133,10 +133,11 @@
       });
     }
 
-    // 4. Tombol WhatsApp di dalam Modal Paywall
-    const btnWa = $('btnConfirmSubscribeWhatsApp');
+   // Tombol WhatsApp di dalam Modal Paywall
+    const btnWa = document.getElementById('btnConfirmSubscribeWhatsApp');
     if (btnWa) {
-      btnWa.addEventListener('click', () => {
+      btnWa.addEventListener('click', (e) => {
+        e.preventDefault();
         const adminPhone = "6281234567890"; // Ganti dengan nomor WhatsApp Admin lu
         const clientData = JSON.parse(localStorage.getItem('wvh_client') || '{}');
         const msg = `Halo Admin WVH, kuota 3 venue gratis saya sudah habis. Saya ingin konfirmasi pembayaran untuk upgrade akun ke SUBSCRIBE.\n\nNama: ${clientData.NAMA || '-'}\nEmail: ${clientData.EMAIL || '-'}`;
@@ -144,11 +145,13 @@
       });
     }
 
-    const btnClose = $('btnClosePaywall');
+    // Tombol Tutup Paywall
+    const btnClose = document.getElementById('btnClosePaywall');
     if (btnClose) {
-      btnClose.addEventListener('click', () => {
-        $('paywallModal').classList.add('hidden');
+      btnClose.addEventListener('click', (e) => {
+        e.preventDefault();
+        const modal = document.getElementById('paywallModal');
+        if (modal) modal.classList.add('hidden');
       });
     }
   });
-})();

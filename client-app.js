@@ -26,7 +26,7 @@
     return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1000` : s;
   }
 
-  // Render daftar venue khusus klien
+  // Render daftar venue khusus klien dengan kuota unik per akun
   async function loadClientVenues() {
     try {
       const res = await api('listVenues');
@@ -47,7 +47,11 @@
       box.className = 'venue-grid';
       const clientData = JSON.parse(localStorage.getItem('wvh_client') || '{}');
       const isSubscribed = clientData.STATUS_LANGGANAN === 'SUBSCRIBE';
-      let viewedVenues = JSON.parse(localStorage.getItem('wvh_client_viewed') || '[]');
+      
+      // Gunakan storageKey unik berdasarkan ID klien agar kuota tidak bentrok antar akun
+      const clientId = clientData.ID_KLIEN || 'guest';
+      const storageKey = 'wvh_viewed_' + clientId;
+      let viewedVenues = JSON.parse(localStorage.getItem(storageKey) || '[]');
 
       box.innerHTML = venues.map(v => {
         const venueId = v.ID_VENUE || v.id_venue;
@@ -84,25 +88,28 @@
     const isSubscribed = clientData.STATUS_LANGGANAN === 'SUBSCRIBE';
 
     if (isSubscribed) {
-      // Buka modal detail venue asli lu di sini
       alert('Membuka detail venue (Sudah Subscribe)...');
       return;
     }
 
-    let viewedVenues = JSON.parse(localStorage.getItem('wvh_client_viewed') || '[]');
+    const clientId = clientData.ID_KLIEN || 'guest';
+    const storageKey = 'wvh_viewed_' + clientId;
+    let viewedVenues = JSON.parse(localStorage.getItem(storageKey) || '[]');
     const alreadyOpened = viewedVenues.includes(venueId);
 
     if (!alreadyOpened) {
       if (viewedVenues.length >= 3) {
         // Tampilkan Modal Paywall / Gembok
-        $('paywallModal').classList.remove('hidden');
+        const modal = $('paywallModal');
+        if (modal) modal.classList.remove('hidden');
         return;
       }
       viewedVenues.push(venueId);
-      localStorage.setItem('wvh_client_viewed', JSON.stringify(viewedVenues));
+      localStorage.setItem(storageKey, JSON.stringify(viewedVenues));
     }
 
-    // Buka detail venue
+    // Refresh tampilan card venue agar badge terkunci terupdate jika kuota pas habis
+    loadClientVenues();
     alert('Membuka detail venue...');
   };
 
@@ -121,6 +128,10 @@
     if ($('clientId')) $('clientId').textContent = client.ID_KLIEN || '-';
     if ($('clientStatus')) $('clientStatus').textContent = client.STATUS || 'AKTIF';
 
+    // Pastikan modal paywall tertutup secara default saat halaman dimuat
+    const paywallModal = $('paywallModal');
+    if (paywallModal) paywallModal.classList.add('hidden');
+
     // 2. Muat daftar venue klien
     loadClientVenues();
 
@@ -133,8 +144,8 @@
       });
     }
 
-   // Tombol WhatsApp di dalam Modal Paywall
-    const btnWa = document.getElementById('btnConfirmSubscribeWhatsApp');
+    // 4. Tombol WhatsApp di dalam Modal Paywall
+    const btnWa = $('btnConfirmSubscribeWhatsApp');
     if (btnWa) {
       btnWa.addEventListener('click', (e) => {
         e.preventDefault();
@@ -145,13 +156,14 @@
       });
     }
 
-    // Tombol Tutup Paywall
-    const btnClose = document.getElementById('btnClosePaywall');
+    // 5. Tombol Tutup Paywall
+    const btnClose = $('btnClosePaywall');
     if (btnClose) {
       btnClose.addEventListener('click', (e) => {
         e.preventDefault();
-        const modal = document.getElementById('paywallModal');
+        const modal = $('paywallModal');
         if (modal) modal.classList.add('hidden');
       });
     }
   });
+})();

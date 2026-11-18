@@ -19,7 +19,6 @@
       --radius: 12px;
     }
 
-    /* KODE TAMBAHAN UNTUK DARK MODE */
     [data-theme="dark"] {
       --bg-color: #0b0f19;
       --card-bg: #1e293b;
@@ -49,22 +48,20 @@
     .client-main { max-width: 1200px; width: 100%; margin: 20px auto 40px; padding: 0 20px; flex-grow: 1; }
     .client-panel.hidden { display: none; }
 
-    /* Search Bar Khusus (Terpisah & Secukupnya) */
+    /* Search Box */
     .search-box-container { background: var(--card-bg); padding: 16px 20px; border-radius: var(--radius); box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid var(--border); margin-bottom: 16px; display: flex; gap: 12px; align-items: center; }
     .search-box-container input { flex-grow: 1; max-width: 450px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 600; outline: none; background: var(--card-bg); color: var(--text-main); }
     .search-box-container input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15); }
 
-    /* Filter Panel Rapih & Compact */
+    /* Filter Panel */
     .filter-panel { background: var(--card-bg); padding: 20px; border-radius: var(--radius); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; align-items: flex-end; }
     .filter-group { display: flex; flex-direction: column; }
     .filter-group label { display: block; font-size: 11px; font-weight: 800; margin-bottom: 5px; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.03em; }
     .filter-group input, .filter-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; background: var(--card-bg); color: var(--text-main); font-weight: 600; outline: none; }
     .filter-group input:focus, .filter-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15); }
 
-    /* Rentang Harga (Min - Max Berjajar) */
     .price-inputs-wrapper { display: flex; gap: 8px; width: 100%; }
     .price-inputs-wrapper input { width: 50%; }
-
     .filter-actions { grid-column: 1 / -1; display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; border-top: 1px solid var(--border); padding-top: 14px; }
 
     /* Venue Grid */
@@ -75,7 +72,6 @@
     .venue-content { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
     .venue-title { font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 6px; line-height: 1.3; }
     .venue-location { font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
-    .venue-distance { font-size: 12px; font-weight: 800; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 4px; }
     .venue-price { font-size: 16px; font-weight: 800; color: #0284c7; margin-top: auto; margin-bottom: 16px; }
     .badge-tag { display: inline-block; padding: 4px 10px; font-size: 11px; font-weight: 700; background: var(--border); color: var(--text-main); border-radius: 6px; margin-right: 6px; margin-bottom: 12px; text-transform: uppercase; }
 
@@ -114,9 +110,7 @@
       </div>
     </div>
     <div style="display:flex; align-items:center; gap:16px;">
-      <!-- TOMBOL DARK/LIGHT MODE -->
       <button type="button" class="btn outline sm" id="themeToggleBtn" onclick="toggleTheme()" title="Ganti Tema">🌙</button>
-      
       <span id="welcomeUser" style="font-size:14px; font-weight:800; color:var(--text-main);">Halo, Klien</span>
       <button type="button" class="btn danger sm" id="btnLogout">Keluar Akun</button>
     </div>
@@ -129,47 +123,27 @@
       <button type="button" class="c-tab-btn" data-ctab="saved">❤️ Favorit (<span id="savedCount">0</span>)</button>
       <button type="button" class="c-tab-btn" data-ctab="account">📋 Profil Akun</button>
     </div>
-    <div>
-      <button type="button" class="btn outline" onclick="sortByNearestLocation()" style="font-weight: 800;">📍 Lokasi Terdekat (GPS)</button>
-    </div>
   </div>
 
-  <!-- KONTEN UTAMA DASHBOARD -->
+  <!-- KONTEN UTAMA -->
   <main class="client-main">
     
     <!-- TAB 1: KATALOG & PENCARIAN -->
     <div id="ctab-catalog" class="client-panel">
-      
-      <!-- SEARCH BAR TERPISAH -->
       <div class="search-box-container">
         <input type="text" id="searchKeyword" placeholder="Cari nama venue atau kata kunci..." onkeydown="if(event.key === 'Enter') applyFilters()">
         <button type="button" class="btn primary" onclick="applyFilters()">Cari</button>
       </div>
 
-      <!-- PANEL FILTER RAPI & COMPACT -->
       <div class="filter-panel">
-        
         <div class="filter-group">
           <label>📍 Kota</label>
-          <select id="filterKota">
-            <option value="">Semua Kota</option>
-          </select>
+          <select id="filterKota"><option value="">Semua Kota</option></select>
         </div>
-
-        <div class="filter-group">
-          <label>🏙️ Kecamatan / Area</label>
-          <select id="filterKecamatan">
-            <option value="">Semua Kecamatan</option>
-          </select>
-        </div>
-
         <div class="filter-group">
           <label>🏛️ Jenis Venue</label>
-          <select id="filterJenis">
-            <option value="">Semua Jenis</option>
-          </select>
+          <select id="filterJenis"><option value="">Semua Jenis</option></select>
         </div>
-
         <div class="filter-group">
           <label>✨ Fitur</label>
           <select id="filterFitur">
@@ -179,85 +153,50 @@
             <option value="Semi-Outdoor">Semi-Outdoor</option>
           </select>
         </div>
-
-        <!-- RENTANG HARGA (MIN - MAX SEJAJAR & FORMAT TITIK) -->
-        <div class="filter-group">
-          <label>💰 Rentang Harga</label>
-          <div class="price-inputs-wrapper">
-            <input type="text" id="filterMinPrice" placeholder="Harga Min" oninput="formatRupiahInput(this)">
-            <input type="text" id="filterMaxPrice" placeholder="Harga Max" oninput="formatRupiahInput(this)">
-          </div>
-        </div>
-
-        <div class="filter-group" style="max-width: 220px;">
-          <label>📊 Urutkan Harga</label>
-          <select id="sortPrice">
-            <option value="">Standar</option>
-            <option value="cheap">Termurah</option>
-            <option value="expensive">Termahal</option>
-          </select>
-        </div>
-
-        <!-- Tombol Aksi Filter -->
         <div class="filter-actions">
           <button type="button" class="btn outline" onclick="resetFilters()">Reset</button>
           <button type="button" class="btn primary" onclick="applyFilters()">Terapkan Filter</button>
         </div>
       </div>
 
-      <!-- GRID HASIL VENUE -->
       <div id="clientVenuesContainer">
         <div style="text-align:center; padding:60px; color:var(--text-muted); font-weight:700;">Memuat data venue dari database...</div>
       </div>
     </div>
 
-    <!-- TAB 2: VENUE DISIMPAN -->
+    <!-- TAB 2: FAVORIT -->
     <div id="ctab-saved" class="client-panel hidden">
       <div style="margin-bottom: 20px;">
         <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 6px;">❤️ Daftar Venue Favorit Anda</h3>
-        <p style="color: var(--text-muted); font-size: 14px; font-weight: 600;">Venue yang Anda simpan untuk referensi pernikahan.</p>
       </div>
       <div id="savedVenuesContainer">
         <div style="text-align:center; padding:60px; color:var(--text-muted); font-weight:700;">Belum ada venue yang disimpan.</div>
       </div>
     </div>
 
-    <!-- TAB 3: PROFIL AKUN -->
+    <!-- TAB 3: AKUN -->
     <div id="ctab-account" class="client-panel hidden">
       <div class="section-box">
         <h3>📋 Informasi Akun Klien</h3>
         <div class="info-grid">
-          <div class="info-item">
-            <label>ID Klien</label>
-            <span id="clientId">-</span>
-          </div>
-          <div class="info-item">
-            <label>Email Terdaftar</label>
-            <span id="clientEmail">-</span>
-          </div>
-          <div class="info-item">
-            <label>Status Akun</label>
-            <span id="clientStatus" style="color:#10b981;">AKTIF</span>
-          </div>
+          <div class="info-item"><label>ID Klien</label><span id="clientId">-</span></div>
+          <div class="info-item"><label>Email Terdaftar</label><span id="clientEmail">-</span></div>
+          <div class="info-item"><label>Status Akun</label><span id="clientStatus" style="color:#10b981;">STANDAR</span></div>
         </div>
       </div>
     </div>
 
-    <!-- MODAL PAYWALL / GEMBOK -->
-    <div id="paywallModal" class="modal-backdrop hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; place-items: center; z-index: 9999;">
-      <div class="modal-box" style="background: var(--card-bg); padding: 32px; border-radius: 16px; max-width: 400px; width: 90%; text-align: center; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);">
+    <!-- MODAL PAYWALL -->
+    <div id="paywallModal" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; place-items: center; z-index: 9999;">
+      <div style="background: var(--card-bg); padding: 32px; border-radius: 16px; max-width: 400px; width: 90%; text-align: center; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);">
         <div style="font-size: 42px; margin-bottom: 12px;">🔒</div>
         <h3 style="font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Akses Terkunci (Batas Kuota Habis)</h3>
         <p style="color: var(--text-muted); font-size: 13px; line-height: 1.5; margin-bottom: 24px;">
           Anda telah menggunakan jatah melihat 3 venue gratis. Upgrade akun Anda ke status <strong>SUBSCRIBE</strong> untuk membuka akses tanpa batas!
         </p>
         <div style="display: flex; flex-direction: column; gap: 10px;">
-          <button type="button" id="btnConfirmSubscribeWhatsApp" class="btn primary w-full" style="padding: 12px; font-weight: 600; cursor: pointer;">
-            💬 Konfirmasi Upgrade via WhatsApp
-          </button>
-          <button type="button" id="btnClosePaywall" class="btn outline w-full" style="padding: 10px; font-weight: 600; cursor: pointer;">
-            Tutup
-          </button>
+          <button type="button" id="btnConfirmSubscribeWhatsApp" class="btn primary w-full" style="padding: 12px; font-weight: 600; cursor: pointer;">💬 Konfirmasi Upgrade via WhatsApp</button>
+          <button type="button" id="btnClosePaywall" class="btn outline w-full" style="padding: 10px; font-weight: 600; cursor: pointer;">Tutup</button>
         </div>
       </div>
     </div>
@@ -265,17 +204,17 @@
 
   <div id="toast" class="toast hidden"></div>
 
-<!-- SCRIPT KLIEN INTERAKTIF -->
+  <!-- SCRIPT -->
   <script>
     const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxsyukFGT1DwBMZz80hNeHKpMyR0erEL-08t1Wz4HP8p2zQFuHecw7FU_bLL5ZD18Ts/exec';
     const $ = (id) => document.getElementById(id);
 
     let allVenues = [];
     let savedVenueIds = [];
+    let viewedVenueIds = [];
     let currentClient = null;
-    let adminWhatsAppNumber = '6281234567890'; // Default fallback
+    let adminWhatsAppNumber = '6281289716828';
 
-    // --- FITUR DARK / LIGHT MODE ---
     function initTheme() {
       const savedTheme = localStorage.getItem('wvh_theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
@@ -338,7 +277,6 @@
       }
     }
 
-    // --- NAVIGASI TAB ---
     document.querySelectorAll('.c-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.c-tab-btn').forEach(b => b.classList.remove('active'));
@@ -349,7 +287,6 @@
       });
     });
 
-    // --- AMBIL PENGATURAN ADMIN WA ---
     async function loadAppSettings() {
       try {
         const res = await api('getSettings');
@@ -361,36 +298,33 @@
             adminWhatsAppNumber = cleanPhone;
           }
         }
-      } catch (e) {
-        console.warn('Menggunakan default WhatsApp admin.');
-      }
+      } catch (e) {}
     }
 
-    // --- AMBIL FAVORIT DARI DATABASE ---
-    async function loadClientSavedVenues() {
+    async function loadClientDataFromServer() {
       if (!currentClient || !currentClient.EMAIL) return;
       try {
-        const res = await api('getSavedVenues', { email: currentClient.EMAIL });
-        if (res && res.status === 'BERHASIL' && Array.isArray(res.saved)) {
-          savedVenueIds = res.saved;
-        } else {
-          savedVenueIds = [];
+        // Ambil data Favorit & Viewed Venues langsung dari Database Sheet
+        const [favRes, viewRes] = await Promise.all([
+          api('getSavedVenues', { email: currentClient.EMAIL }),
+          api('getClientViewedVenues', { email: currentClient.EMAIL })
+        ]);
+
+        if (favRes && favRes.status === 'BERHASIL') savedVenueIds = favRes.saved || [];
+        if (viewRes && viewRes.status === 'BERHASIL') viewedVenueIds = viewRes.viewed || [];
+
+        const savedCountEl = $('savedCount');
+        if (savedCountEl) savedCountEl.textContent = savedVenueIds.length;
+
+        if (allVenues.length > 0) {
+          renderVenuesList(allVenues);
+          renderSavedVenues();
         }
       } catch (e) {
-        console.warn('Gagal memuat venue favorit dari server:', e);
-        savedVenueIds = [];
-      }
-      
-      const savedCountEl = $('savedCount');
-      if (savedCountEl) savedCountEl.textContent = savedVenueIds.length;
-      
-      if (allVenues.length > 0) {
-        renderVenuesList(allVenues);
-        renderSavedVenues();
+        console.warn('Gagal sync data server:', e);
       }
     }
 
-    // --- LOAD VENUES ---
     async function loadVenuesData() {
       try {
         const res = await api('listVenues');
@@ -408,6 +342,7 @@
           jenisSelect.innerHTML = '<option value="">Semua Jenis</option>' + jenisSet.map(j => `<option value="${j}">${j}</option>`).join('');
         }
 
+        await loadClientDataFromServer();
         renderVenuesList(allVenues);
       } catch (e) {
         toast('Gagal memuat data venue.', true);
@@ -419,14 +354,11 @@
       if (!box) return;
 
       if (!venuesToRender.length) {
-        box.innerHTML = `<div style="text-align:center; padding:50px; color:var(--text-muted); font-weight:700; grid-column: 1/-1;">Tidak ada venue yang sesuai dengan filter Anda.</div>`;
+        box.innerHTML = `<div style="text-align:center; padding:50px; color:var(--text-muted); font-weight:700; grid-column: 1/-1;">Tidak ada venue yang sesuai.</div>`;
         return;
       }
 
       const isSubscribed = currentClient && (currentClient.STATUS_LANGGANAN === 'SUBSCRIBE' || currentClient.status_langganan === 'SUBSCRIBE');
-      const clientId = currentClient ? (currentClient.ID_KLIEN || currentClient.id_klien || 'guest') : 'guest';
-      const storageKey = 'wvh_viewed_' + clientId;
-      let viewedVenues = JSON.parse(localStorage.getItem(storageKey) || '[]');
 
       box.className = 'venue-grid-client';
       box.innerHTML = venuesToRender.map(v => {
@@ -436,8 +368,8 @@
         const fitur = v.FITUR_VENUE || v.fitur_venue || 'Indoor';
         const id = v.ID_VENUE || v.id_venue;
         
-        const isOpened = viewedVenues.includes(id);
-        const isLocked = !isSubscribed && !isOpened && viewedVenues.length >= 3;
+        const isOpened = viewedVenueIds.includes(id);
+        const isLocked = !isSubscribed && !isOpened && viewedVenueIds.length >= 3;
 
         const lockBadge = isLocked 
           ? `<span style="position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.85); color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; z-index: 10;">🔒 Terkunci</span>` 
@@ -461,10 +393,7 @@
               </button>
             </div>
             <div class="venue-content">
-              <div>
-                <span class="badge-tag">${jenis}</span>
-                <span class="badge-tag">${fitur}</span>
-              </div>
+              <div><span class="badge-tag">${jenis}</span><span class="badge-tag">${fitur}</span></div>
               <div class="venue-title">${name}</div>
               <div class="venue-location">📍 ${kota}</div>
               <div class="venue-price">${priceStr}</div>
@@ -507,7 +436,6 @@
       }).join('');
     }
 
-    // --- FUNGSI KLIK DETAIL & PAYWALL ---
     window.handleClientViewDetail = async function(venueId) {
       const sub = (currentClient.STATUS_LANGGANAN || currentClient.status_langganan || 'STANDAR').toUpperCase();
       if (sub === 'SUBSCRIBE') {
@@ -515,7 +443,6 @@
         return;
       }
 
-      // Cek & catat langsung ke database AKUN_KLIEN
       try {
         const res = await api('recordViewedVenue', {
           email: currentClient.EMAIL || currentClient.email,
@@ -523,6 +450,10 @@
         });
 
         if (res.status === 'LIMIT_REACHED') {
+          if (Array.isArray(res.viewed)) {
+            viewedVenueIds = res.viewed;
+            renderVenuesList(allVenues);
+          }
           const modal = $('paywallModal');
           if (modal) {
             modal.style.display = 'grid';
@@ -531,29 +462,22 @@
           return;
         }
 
-        // Update sesi lokal agar badge gembok di grid langsung akurat
-        if (Array.isArray(res.viewed)) {
-          currentClient.VIEWED_VENUES = res.viewed.join(',');
-          localStorage.setItem('wvh_client', JSON.stringify(currentClient));
+        if (res.status === 'BERHASIL') {
+          if (Array.isArray(res.viewed)) {
+            viewedVenueIds = res.viewed;
+          }
+          window.location.href = `./venue-detail.html?id=${venueId}`;
         }
-
-        window.location.href = `./venue-detail.html?id=${venueId}`;
       } catch (e) {
         toast('Gagal memverifikasi kuota akses.', true);
       }
     };
 
-    // --- TOGGLE SAVE VENUE KE DATABASE ---
     window.toggleSaveVenue = async function(venueId) {
-      if (!currentClient || !currentClient.EMAIL) {
-        toast('Silakan login ulang.', true);
-        return;
-      }
+      if (!currentClient || !currentClient.EMAIL) return;
 
       const idx = savedVenueIds.indexOf(venueId);
-      const isCurrentlySaved = idx > -1;
-
-      if (isCurrentlySaved) {
+      if (idx > -1) {
         savedVenueIds.splice(idx, 1);
         toast('Venue dihapus dari daftar simpan.');
       } else {
@@ -567,66 +491,76 @@
       renderSavedVenues();
 
       try {
-        await api('toggleSaveVenueDatabase', {
-          email: currentClient.EMAIL,
-          venue_id: venueId
-        });
-      } catch (err) {
-        console.error('Gagal sync favorit:', err);
-      }
+        await api('toggleSaveVenueDatabase', { email: currentClient.EMAIL, venue_id: venueId });
+      } catch (err) {}
     };
 
-    // --- INISIALISASI UTAMA (MENGGUNAKAN ASYNC FUNCTION AGAR AWAIT LEGAL) ---
+    function applyFilters() {
+      const keyword = $('searchKeyword').value.toLowerCase();
+      const kota = $('filterKota').value;
+      const jenis = $('filterJenis').value;
+      const fitur = $('filterFitur').value;
+
+      const filtered = allVenues.filter(v => {
+        const name = (v.NAMA_VENUE || v.nama_venue || '').toLowerCase();
+        const vKota = v.KOTA || v.kota || '';
+        const vJenis = v.JENIS_VENUE || v.jenis_venue || '';
+        const vFitur = v.FITUR_VENUE || v.fitur_venue || '';
+
+        if (keyword && !name.includes(keyword) && !vKota.toLowerCase().includes(keyword)) return false;
+        if (kota && vKota !== kota) return false;
+        if (jenis && vJenis !== jenis) return false;
+        if (fitur && vFitur !== fitur) return false;
+        return true;
+      });
+
+      renderVenuesList(filtered);
+    }
+
+    function resetFilters() {
+      $('searchKeyword').value = '';
+      $('filterKota').value = '';
+      $('filterJenis').value = '';
+      $('filterFitur').value = '';
+      renderVenuesList(allVenues);
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
-      // 1. Cek Sesi Klien
+      initTheme();
       if (!checkClientSession()) return;
 
-      // 2. Sembunyikan Modal Paywall di Awal (Secara Paksa)
       const paywallModal = $('paywallModal');
       if (paywallModal) {
         paywallModal.style.display = 'none';
         paywallModal.classList.add('hidden');
       }
 
-      // 3. Pasang Event Listener Tombol Modal & Logout
-      const btnLogout = $('btnLogout');
-      if (btnLogout) {
-        btnLogout.addEventListener('click', () => {
-          localStorage.removeItem('wvh_client');
-          toast('Keluar dari portal...');
-          setTimeout(() => { window.location.href = './index.html'; }, 800);
-        });
-      }
+      $('btnLogout').addEventListener('click', () => {
+        localStorage.removeItem('wvh_client');
+        toast('Keluar dari portal...');
+        setTimeout(() => { window.location.href = './index.html'; }, 800);
+      });
 
-      const btnWa = $('btnConfirmSubscribeWhatsApp');
-      if (btnWa) {
-        btnWa.addEventListener('click', (e) => {
-          e.preventDefault();
-          const clientData = currentClient || {};
-          const msg = `Halo Admin WVH, kuota 3 venue gratis saya sudah habis. Saya ingin konfirmasi pembayaran untuk upgrade akun ke SUBSCRIBE.\n\nNama: ${clientData.NAMA || clientData.nama || '-'}\nEmail: ${clientData.EMAIL || clientData.email || '-'}`;
-          window.open(`https://wa.me/${adminWhatsAppNumber}?text=${encodeURIComponent(msg)}`, '_blank');
-        });
-      }
+      $('btnConfirmSubscribeWhatsApp').addEventListener('click', (e) => {
+        e.preventDefault();
+        const clientData = currentClient || {};
+        const msg = `Halo Admin WVH, kuota 3 venue gratis saya sudah habis. Saya ingin konfirmasi pembayaran untuk upgrade akun ke SUBSCRIBE.\n\nNama: ${clientData.NAMA || '-'}\nEmail: ${clientData.EMAIL || '-'}`;
+        window.open(`https://wa.me/${adminWhatsAppNumber}?text=${encodeURIComponent(msg)}`, '_blank');
+      });
 
-      const btnClose = $('btnClosePaywall');
-      if (btnClose) {
-        btnClose.addEventListener('click', (e) => {
-          e.preventDefault();
-          const modal = $('paywallModal');
-          if (modal) {
-            modal.style.display = 'none';
-            modal.classList.add('hidden');
-          }
-        });
-      }
+      $('btnClosePaywall').addEventListener('click', (e) => {
+        e.preventDefault();
+        const modal = $('paywallModal');
+        if (modal) {
+          modal.style.display = 'none';
+          modal.classList.add('hidden');
+        }
+      });
 
-      // 4. Jalankan Load Data Server Secara Aman
       try {
+        await loadAppSettings();
         await loadVenuesData();
-        await loadClientSavedVenues();
-      } catch (err) {
-        console.error('Error initialization:', err);
-      }
+      } catch (err) {}
     });
   </script>
 </body>

@@ -508,22 +508,21 @@
     }
 
     // --- FUNGSI KLIK DETAIL & PAYWALL ---
-    window.handleClientViewDetail = function(venueId) {
-      const isSubscribed = currentClient && (currentClient.STATUS_LANGGANAN === 'SUBSCRIBE' || currentClient.status_langganan === 'SUBSCRIBE');
-
-      if (isSubscribed) {
+    window.handleClientViewDetail = async function(venueId) {
+      const sub = (currentClient.STATUS_LANGGANAN || currentClient.status_langganan || 'STANDAR').toUpperCase();
+      if (sub === 'SUBSCRIBE') {
         window.location.href = `./venue-detail.html?id=${venueId}`;
         return;
       }
 
-      const clientId = currentClient ? (currentClient.ID_KLIEN || currentClient.id_klien || 'guest') : 'guest';
-      const storageKey = 'wvh_viewed_' + clientId;
-      let viewedVenues = JSON.parse(localStorage.getItem(storageKey) || '[]');
-      
-      const alreadyOpened = viewedVenues.includes(venueId);
+      // Cek & catat langsung ke database AKUN_KLIEN
+      try {
+        const res = await api('recordViewedVenue', {
+          email: currentClient.EMAIL || currentClient.email,
+          venue_id: venueId
+        });
 
-      if (!alreadyOpened) {
-        if (viewedVenues.length >= 3) {
+        if (res.status === 'LIMIT_REACHED') {
           const modal = $('paywallModal');
           if (modal) {
             modal.style.display = 'grid';
@@ -531,11 +530,17 @@
           }
           return;
         }
-        viewedVenues.push(venueId);
-        localStorage.setItem(storageKey, JSON.stringify(viewedVenues));
-      }
 
-      window.location.href = `./venue-detail.html?id=${venueId}`;
+        // Update sesi lokal agar badge gembok di grid langsung akurat
+        if (Array.isArray(res.viewed)) {
+          currentClient.VIEWED_VENUES = res.viewed.join(',');
+          localStorage.setItem('wvh_client', JSON.stringify(currentClient));
+        }
+
+        window.location.href = `./venue-detail.html?id=${venueId}`;
+      } catch (e) {
+        toast('Gagal memverifikasi kuota akses.', true);
+      }
     };
 
     // --- TOGGLE SAVE VENUE KE DATABASE ---

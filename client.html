@@ -492,24 +492,23 @@
 
     document.addEventListener('DOMContentLoaded', async () => {
       initTheme();
-      checkClientSession();
+      checkClientSession(); // Memuat currentClient
 
-      // Muat nomor WhatsApp admin dari Sheet Pengaturan database
+      // Muat nomor WhatsApp admin dari Sheet Pengaturan
       await loadAppSettings();
 
+      // PASTIKAN MODAL TERTUTUP SEMPURNA SAAT HALAMAN DIMUAT
       const paywallModal = $('paywallModal');
       if (paywallModal) {
         paywallModal.style.display = 'none';
         paywallModal.classList.add('hidden');
       }
 
-      const savedRaw = localStorage.getItem('wvh_saved_' + (currentClient?.EMAIL || 'user'));
-      if (savedRaw) {
-        try { savedVenueIds = JSON.parse(savedRaw); } catch(e){}
-      }
-      $('savedCount').textContent = savedVenueIds.length;
+      // 1. MUAT DATA FAVORIT DARI DATABASE (CLIENT_SAVED_VENUES)
+      await loadClientSavedVenues();
       
-      loadVenuesData();
+      // 2. MUAT DATA VENUE KATALOG
+      await loadVenuesData();
 
       // Tombol Logout
       $('btnLogout').addEventListener('click', () => {
@@ -518,7 +517,7 @@
         setTimeout(() => { window.location.href = './index.html'; }, 800);
       });
 
-      // Tombol WhatsApp di dalam Modal Paywall (Menggunakan adminWhatsAppNumber dari Sheet Pengaturan)
+      // Tombol WhatsApp di dalam Modal Paywall
       const btnWa = $('btnConfirmSubscribeWhatsApp');
       if (btnWa) {
         btnWa.addEventListener('click', (e) => {
@@ -529,7 +528,7 @@
         });
       }
 
-      // Tombol Tutup Paywall (Close)
+      // Tombol Tutup Paywall
       const btnClose = $('btnClosePaywall');
       if (btnClose) {
         btnClose.addEventListener('click', (e) => {
@@ -542,7 +541,66 @@
         });
       }
     });
-  </script>
+    // --- AMBIL DATA FAVORIT DARI DATABASE SHEET CLIENT_SAVED_VENUES ---
+    async function loadClientSavedVenues() {
+      if (!currentClient || !currentClient.EMAIL) return;
+      try {
+        const res = await api('getSavedVenues', { email: currentClient.EMAIL });
+        if (res.status === 'BERHASIL' && Array.isArray(res.saved)) {
+          savedVenueIds = res.saved;
+        } else {
+          savedVenueIds = [];
+        }
+        const savedCountEl = $('savedCount');
+        if (savedCountEl) savedCountEl.textContent = savedVenueIds.length;
+        renderSavedVenues();
+      } catch (e) {
+        console.warn('Gagal memuat venue favorit dari database:', e);
+      }
+    }
+
+    // --- FUNGSI TOGGLE SIMPAN VENUE KE DATABASE ---
+    window.toggleSaveVenue = async function(venueId) {
+      if (!currentClient || !currentClient.EMAIL) {
+        toast('Silakan login ulang terlebih dahulu.', true);
+        return;
+      }
+
+      // Update secara optimis di UI agar terasa instan
+      const idx = savedVenueIds.indexOf(venueId);
+      const isCurrentlySaved = idx > -1;
+
+      if (isCurrentlySaved) {
+        savedVenueIds.splice(idx, 1);
+        toast('Venue dihapus dari daftar simpan.');
+      } else {
+        savedVenueIds.push(venueId);
+        toast('Venue berhasil disimpan ke Favorit!');
+      }
+
+      // Update tampilan counter & grid seketika
+      const savedCountEl = $('savedCount');
+      if (savedCountEl) savedCountEl.textContent = savedVenueIds.length;
+      renderVenuesList(allVenues);
+      renderSavedVenues();
+
+      // Kirim request ke backend untuk update sheet CLIENT_SAVED_VENUES secara permanen
+      try {
+        const res = await api('toggleSaveVenueDatabase', {
+          email: currentClient.EMAIL,
+          venue_id: venueId
+        });
+        if (res.status !== 'BERHASIL') {
+          // Rollback jika gagal di server
+          if (isCurrentlySaved) savedVenueIds.push(venueId);
+          else savedVenueIds.splice(savedVenueIds.indexOf(venueId), 1);
+          toast('Gagal menyinkronkan favorit ke server.', true);
+        }
+      } catch (err) {
+        console.error('Error toggle save:', err);
+        toast('Terjadi kesalahan jaringan.', true);
+      }
+    });
   </script>
 </body>
 </html>

@@ -384,7 +384,6 @@
       const savedCountEl = $('savedCount');
       if (savedCountEl) savedCountEl.textContent = savedVenueIds.length;
       
-      // Render ulang jika venues sudah ada
       if (allVenues.length > 0) {
         renderVenuesList(allVenues);
         renderSavedVenues();
@@ -572,8 +571,8 @@
       }
     };
 
-    // --- INISIALISASI UTAMA (DIJAMIN TOMBOL SELALU BERFUNGSI) ---
-    document.addEventListener('DOMContentLoaded', () => {
+    // --- INISIALISASI UTAMA (MENGGUNAKAN ASYNC FUNCTION AGAR AWAIT LEGAL) ---
+    document.addEventListener('DOMContentLoaded', async () => {
       // 1. Cek Sesi Klien
       if (!checkClientSession()) return;
 
@@ -584,7 +583,7 @@
         paywallModal.classList.add('hidden');
       }
 
-      // 3. Pasang Event Listener Tombol Modal & Logout (Mandiri & Terisolasi)
+      // 3. Pasang Event Listener Tombol Modal & Logout
       const btnLogout = $('btnLogout');
       if (btnLogout) {
         btnLogout.addEventListener('click', () => {
@@ -616,10 +615,10 @@
         });
       }
 
-      // 4. Jalankan Load Data Async di latar belakang secara aman tanpa memblokir tombol UI
+      // 4. Jalankan Load Data Server Secara Aman
       try {
-        await loadVenuesData(); // Load venue dulu supaya objek allVenues terisi
-        await loadClientSavedVenues(); // Baru tarik data favorit dari database
+        await loadVenuesData();
+        await loadClientSavedVenues();
       } catch (err) {
         console.error('Error initialization:', err);
       }

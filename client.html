@@ -48,7 +48,7 @@
     .client-main { max-width: 1200px; width: 100%; margin: 20px auto 40px; padding: 0 20px; flex-grow: 1; }
     .client-panel.hidden { display: none; }
 
-    /* Search Box */
+    /* Search Bar */
     .search-box-container { background: var(--card-bg); padding: 16px 20px; border-radius: var(--radius); box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid var(--border); margin-bottom: 16px; display: flex; gap: 12px; align-items: center; }
     .search-box-container input { flex-grow: 1; max-width: 450px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 600; outline: none; background: var(--card-bg); color: var(--text-main); }
     .search-box-container input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15); }
@@ -123,6 +123,9 @@
       <button type="button" class="c-tab-btn" data-ctab="saved">❤️ Favorit (<span id="savedCount">0</span>)</button>
       <button type="button" class="c-tab-btn" data-ctab="account">📋 Profil Akun</button>
     </div>
+    <div>
+      <button type="button" class="btn outline" onclick="sortByNearestLocation()" style="font-weight: 800;">📍 Lokasi Terdekat (GPS)</button>
+    </div>
   </div>
 
   <!-- KONTEN UTAMA -->
@@ -130,15 +133,21 @@
     
     <!-- TAB 1: KATALOG & PENCARIAN -->
     <div id="ctab-catalog" class="client-panel">
+      
       <div class="search-box-container">
         <input type="text" id="searchKeyword" placeholder="Cari nama venue atau kata kunci..." onkeydown="if(event.key === 'Enter') applyFilters()">
         <button type="button" class="btn primary" onclick="applyFilters()">Cari</button>
       </div>
 
+      <!-- PANEL FILTER LENGKAP -->
       <div class="filter-panel">
         <div class="filter-group">
           <label>📍 Kota</label>
           <select id="filterKota"><option value="">Semua Kota</option></select>
+        </div>
+        <div class="filter-group">
+          <label>🏙️ Kecamatan / Area</label>
+          <select id="filterKecamatan"><option value="">Semua Kecamatan</option></select>
         </div>
         <div class="filter-group">
           <label>🏛️ Jenis Venue</label>
@@ -151,6 +160,21 @@
             <option value="Indoor">Indoor</option>
             <option value="Outdoor">Outdoor</option>
             <option value="Semi-Outdoor">Semi-Outdoor</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>💰 Rentang Harga</label>
+          <div class="price-inputs-wrapper">
+            <input type="text" id="filterMinPrice" placeholder="Harga Min" oninput="formatRupiahInput(this)">
+            <input type="text" id="filterMaxPrice" placeholder="Harga Max" oninput="formatRupiahInput(this)">
+          </div>
+        </div>
+        <div class="filter-group" style="max-width: 220px;">
+          <label>📊 Urutkan Harga</label>
+          <select id="sortPrice">
+            <option value="">Standar</option>
+            <option value="cheap">Termurah</option>
+            <option value="expensive">Termahal</option>
           </select>
         </div>
         <div class="filter-actions">
@@ -168,6 +192,7 @@
     <div id="ctab-saved" class="client-panel hidden">
       <div style="margin-bottom: 20px;">
         <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 6px;">❤️ Daftar Venue Favorit Anda</h3>
+        <p style="color: var(--text-muted); font-size: 14px; font-weight: 600;">Venue yang Anda simpan untuk referensi pernikahan.</p>
       </div>
       <div id="savedVenuesContainer">
         <div style="text-align:center; padding:60px; color:var(--text-muted); font-weight:700;">Belum ada venue yang disimpan.</div>
@@ -304,7 +329,6 @@
     async function loadClientDataFromServer() {
       if (!currentClient || !currentClient.EMAIL) return;
       try {
-        // Ambil data Favorit & Viewed Venues langsung dari Database Sheet
         const [favRes, viewRes] = await Promise.all([
           api('getSavedVenues', { email: currentClient.EMAIL }),
           api('getClientViewedVenues', { email: currentClient.EMAIL })
@@ -354,7 +378,7 @@
       if (!box) return;
 
       if (!venuesToRender.length) {
-        box.innerHTML = `<div style="text-align:center; padding:50px; color:var(--text-muted); font-weight:700; grid-column: 1/-1;">Tidak ada venue yang sesuai.</div>`;
+        box.innerHTML = `<div style="text-align:center; padding:50px; color:var(--text-muted); font-weight:700; grid-column: 1/-1;">Tidak ada venue yang sesuai dengan filter Anda.</div>`;
         return;
       }
 
@@ -393,7 +417,10 @@
               </button>
             </div>
             <div class="venue-content">
-              <div><span class="badge-tag">${jenis}</span><span class="badge-tag">${fitur}</span></div>
+              <div>
+                <span class="badge-tag">${jenis}</span>
+                <span class="badge-tag">${fitur}</span>
+              </div>
               <div class="venue-title">${name}</div>
               <div class="venue-location">📍 ${kota}</div>
               <div class="venue-price">${priceStr}</div>
@@ -495,34 +522,121 @@
       } catch (err) {}
     };
 
+    // --- FUNGSI FILTER, PENCARIAN & GPS ---
     function applyFilters() {
-      const keyword = $('searchKeyword').value.toLowerCase();
-      const kota = $('filterKota').value;
-      const jenis = $('filterJenis').value;
-      const fitur = $('filterFitur').value;
+      const keyword = $('searchKeyword') ? $('searchKeyword').value.toLowerCase() : '';
+      const kota = $('filterKota') ? $('filterKota').value : '';
+      const kecamatan = $('filterKecamatan') ? $('filterKecamatan').value : '';
+      const jenis = $('filterJenis') ? $('filterJenis').value : '';
+      const fitur = $('filterFitur') ? $('filterFitur').value : '';
+      
+      const minPriceStr = $('filterMinPrice') ? $('filterMinPrice').value.replace(/[^0-9]/g, '') : '';
+      const maxPriceStr = $('filterMaxPrice') ? $('filterMaxPrice').value.replace(/[^0-9]/g, '') : '';
+      const minPrice = minPriceStr ? Number(minPriceStr) : 0;
+      const maxPrice = maxPriceStr ? Number(maxPriceStr) : Infinity;
+      const sortOpt = $('sortPrice') ? $('sortPrice').value : '';
 
-      const filtered = allVenues.filter(v => {
+      let filtered = allVenues.filter(v => {
         const name = (v.NAMA_VENUE || v.nama_venue || '').toLowerCase();
+        const address = (v.ALAMAT || v.alamat || '').toLowerCase();
         const vKota = v.KOTA || v.kota || '';
         const vJenis = v.JENIS_VENUE || v.jenis_venue || '';
         const vFitur = v.FITUR_VENUE || v.fitur_venue || '';
 
-        if (keyword && !name.includes(keyword) && !vKota.toLowerCase().includes(keyword)) return false;
+        if (keyword && !name.includes(keyword) && !address.includes(keyword)) return false;
         if (kota && vKota !== kota) return false;
+        if (kecamatan && !address.toLowerCase().includes(kecamatan.toLowerCase())) return false;
         if (jenis && vJenis !== jenis) return false;
-        if (fitur && vFitur !== fitur) return false;
+        if (fitur && !vFitur.toLowerCase().includes(fitur.toLowerCase())) return false;
+
+        try {
+          const pObj = JSON.parse(v.HARGA_INFO || v.harga_info || '{}');
+          const pAmount = pObj.amount ? Number(pObj.amount) : 0;
+          if (pAmount > 0) {
+            if (minPrice && pAmount < minPrice) return false;
+            if (maxPrice && pAmount > maxPrice) return false;
+          }
+        } catch(e){}
+
         return true;
       });
+
+      if (sortOpt === 'cheap') {
+        filtered.sort((a, b) => {
+          try {
+            const pa = JSON.parse(a.HARGA_INFO || a.harga_info || '{}').amount || 0;
+            const pb = JSON.parse(b.HARGA_INFO || b.harga_info || '{}').amount || 0;
+            return pa - pb;
+          } catch(e) { return 0; }
+        });
+      } else if (sortOpt === 'expensive') {
+        filtered.sort((a, b) => {
+          try {
+            const pa = JSON.parse(a.HARGA_INFO || a.harga_info || '{}').amount || 0;
+            const pb = JSON.parse(b.HARGA_INFO || b.harga_info || '{}').amount || 0;
+            return pb - pa;
+          } catch(e) { return 0; }
+        });
+      }
 
       renderVenuesList(filtered);
     }
 
     function resetFilters() {
-      $('searchKeyword').value = '';
-      $('filterKota').value = '';
-      $('filterJenis').value = '';
-      $('filterFitur').value = '';
+      if ($('searchKeyword')) $('searchKeyword').value = '';
+      if ($('filterKota')) $('filterKota').value = '';
+      if ($('filterKecamatan')) $('filterKecamatan').value = '';
+      if ($('filterJenis')) $('filterJenis').value = '';
+      if ($('filterFitur')) $('filterFitur').value = '';
+      if ($('filterMinPrice')) $('filterMinPrice').value = '';
+      if ($('filterMaxPrice')) $('filterMaxPrice').value = '';
+      if ($('sortPrice')) $('sortPrice').value = '';
       renderVenuesList(allVenues);
+      toast('Filter direset.');
+    }
+
+    function formatRupiahInput(input) {
+      let val = input.value.replace(/[^0-9]/g, '');
+      if (val) {
+        input.value = Number(val).toLocaleString('id-ID');
+      } else {
+        input.value = '';
+      }
+    }
+
+    function sortByNearestLocation() {
+      if (!navigator.geolocation) {
+        toast('Geolocation tidak didukung browser Anda.', true);
+        return;
+      }
+      toast('Mendeteksi lokasi Anda...');
+      navigator.geolocation.getCurrentPosition(position => {
+        const userLat = position.coords.latitude;
+        const userLon = position.coords.longitude;
+
+        allVenues.forEach(v => {
+          const lat = parseFloat(v.LATITUDE || v.latitude);
+          const lon = parseFloat(v.LONGITUDE || v.longitude);
+          if (!isNaN(lat) && !isNaN(lon)) {
+            const R = 6371;
+            const dLat = (lat - userLat) * Math.PI / 180;
+            const dLon = (lon - userLon) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(userLat * Math.PI / 180) * Math.cos(lat * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            v._distance = R * c;
+          } else {
+            v._distance = 999999;
+          }
+        });
+
+        allVenues.sort((a, b) => (a._distance || 999999) - (b._distance || 999999));
+        renderVenuesList(allVenues);
+        toast('Urutan venue diubah berdasarkan lokasi terdekat!');
+      }, () => {
+        toast('Gagal mendeteksi lokasi GPS Anda.', true);
+      });
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
